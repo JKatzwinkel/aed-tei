@@ -30,6 +30,18 @@ from delb import Document, TagNode, new_tag_node  # pylint: disable=import-error
 import xmlschema  # pylint: disable=import-error
 
 XML_NS = "http://www.w3.org/XML/1998/namespace"
+RELATIONS = dict(
+    reduce(
+        lambda l, e: l + [e, e[::-1]],
+        [
+            ("partOf", "contains"),
+            ("predecessor", "successor"),
+            ("rootOf", "root"),
+            ("referencedBy", "referencing"),
+        ],
+        []
+    )
+)
 
 
 def _load_wlist(filename: str = 'dump/vocabulary.zip') -> Iterable[dict]:
@@ -46,7 +58,21 @@ def _load_wlist(filename: str = 'dump/vocabulary.zip') -> Iterable[dict]:
     yield from wlist
 
 
-def _translations(lemma_entry: dict) -> dict:
+def _register_bts_qualified_property(
+    registry: dict, qualifier: str, value: str
+) -> dict:
+    """ add a value to the list stored under the accompaning qualifier.
+
+    >>> _register_bts_qualified_property({}, 'k', 'v')
+    {'k': ['v']}
+
+    """
+    if qualifier and value:
+        registry[qualifier] = registry.get(qualifier, []) + [value]
+    return registry
+
+
+def _translations(bts_entry: dict) -> dict:
     """ extract translations from BTS couchdb dump JSON object and group
     them under their language values.
 
@@ -56,14 +82,30 @@ def _translations(lemma_entry: dict) -> dict:
 
     """
     res = {}
-    for translation in lemma_entry.get('translations', {}).get(
+    for translation in bts_entry.get('translations', {}).get(
         'translations', []
     ):
-        lang = translation.get('lang')
-        val = translation.get('value')
-        if lang is not None and val is not None:
-            res[lang] = res.get(lang, []) + [val]
+        _register_bts_qualified_property(
+            res, translation.get('lang'), translation.get('value')
+        )
     return {'translations': res}
+
+
+def _relations(bts_entry: dict) -> dict:
+    """ extract relations of BTS couchdb dump JSON object and group them
+    under their respective predicates.
+
+    >>> r = {'type': 'rootOf', 'objectId': '48620'}
+    >>> _relations({'relations': [r]})
+    {'relations': {'rootOf': ['48620']}}
+
+    """
+    res = {}
+    for relation in bts_entry.get('relations', []):
+        _register_bts_qualified_property(
+            res, relation.get('type'), relation.get('objectId')
+        )
+    return {'relations': res}
 
 
 def _has_translation(e: TagNode, lang: str, value: str) -> bool:
@@ -122,6 +164,23 @@ def _add_translation(e: TagNode, lang: str, value: str) -> TagNode:
     return e
 
 
+def _mirror_relations(entry_id: str, entry: dict, wlist: dict):
+    """ create inverted relations in wlist entries referenced
+    via an entry's relations.
+
+    >>> wlist = {'2': {}}
+    >>> _mirror_relations('1', {'relations': {'root': ['2']}}, wlist)
+    >>> wlist
+    {'2': {'relations': {'rootOf': ['1']}}}
+    """
+    for predicate, values in entry.get('relations', {}).items():
+        for value in values:
+            target = wlist.get(value, {})
+            target['relations'] = _register_bts_qualified_property(
+                target.get('relations', {}), RELATIONS[predicate], entry_id
+            )
+
+
 def _apply_functions(
     entry: dict, functions: List[Callable] = [_translations]
 ) -> dict:
@@ -162,6 +221,21 @@ def init_wlist(
         entry['_id']: _apply_functions(entry, functions)
         for entry in _load_wlist(filename=filename)
     }
+
+
+def patch_wlist(wlist: dict, functions: List[Callable] = None) -> dict:
+    """ iterate through all key value pairs in wlist and apply one or more
+    functions to each.
+
+    >>> wlist = {'1': {}, '2': {'relations': {'rootOf': ['1']}}}
+    >>> patch_wlist(wlist, [_mirror_relations])['1']
+    {'relations': {'root': ['2']}}
+
+    """
+    for _id, entry in wlist.items():
+        for func in functions:
+            func(_id, entry, wlist)
+    return wlist
 
 
 def _strip_id(aedid: str) -> str:
