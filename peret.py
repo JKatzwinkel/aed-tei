@@ -20,8 +20,8 @@ Options:
 """
 from typing import Iterable, List, Callable
 
-from pathlib import Path
 import json
+from pathlib import Path
 from zipfile import ZipFile
 from functools import reduce
 
@@ -38,6 +38,7 @@ def _load_wlist(filename: str = 'dump/vocabulary.zip') -> Iterable[dict]:
 
     >>> len(list(_load_wlist()))
     38775
+
     """
     with ZipFile(filename) as z:
         with z.open('aaew_wlist.json') as f:
@@ -46,10 +47,13 @@ def _load_wlist(filename: str = 'dump/vocabulary.zip') -> Iterable[dict]:
 
 
 def _translations(lemma_entry: dict) -> dict:
-    """
+    """ extract translations from BTS couchdb dump JSON object and group
+    them under their language values.
+
     >>> t = {'value': 'vulture', 'lang': 'en'}
     >>> _translations({'translations': {'translations': [t]}})
     {'translations': {'en': ['vulture']}}
+
     """
     res = {}
     for translation in lemma_entry.get('translations', {}).get(
@@ -65,6 +69,7 @@ def _translations(lemma_entry: dict) -> dict:
 def _has_translation(e: TagNode, lang: str, value: str) -> bool:
     """ determine if `<entry/>`-XML element already contains certain
     translation.
+
     >>> e = Document(
     ... '''<entry><sense><cit type="translation" xml:lang="en">
     ... <quote>vulture</quote></cit></sense></entry>'''
@@ -75,6 +80,7 @@ def _has_translation(e: TagNode, lang: str, value: str) -> bool:
     False
     >>> _has_translation(e, 'de', '')
     True
+
     """
     if value.strip() == '':
         return True
@@ -94,18 +100,19 @@ def _add_translation(e: TagNode, lang: str, value: str) -> TagNode:
     >>> str(_add_translation(e, 'de', 'geier'))
     '<entry><sense><cit type="translation" xml:lang="de"><quote>geier</quote>\
 </cit></sense></entry>'
+
     """
     if len(e.css_select('sense')) < 1:
-        e.append_child(e.new_tag_node('sense'))
+        e.append_child(new_tag_node('sense'))
     sense = e.css_select('sense')[0]
-    cit = e.new_tag_node(
+    cit = new_tag_node(
         'cit',
         attributes={
             'type': 'translation',
             f'{{{XML_NS}}}lang': lang,
         },
         children=[
-            e.new_tag_node(
+            new_tag_node(
                 'quote',
                 children=[value]
             )
@@ -125,6 +132,7 @@ def _apply_functions(
     >>> f2 = lambda e: {'b': e['B']}
     >>> _apply_functions({'A': 1, 'B': 2}, functions=[f1, f2])
     {'a': 1, 'b': 2}
+
     """
     return reduce(
         lambda a, b: {**a, **b},
@@ -148,6 +156,7 @@ def init_wlist(
 
     >>> init_wlist()['1']['translations']
     {'de': ['Geier; Vogel (allg.)'], 'en': ['vulture; bird (gen.)']}
+
     """
     return {
         entry['_id']: _apply_functions(entry, functions)
@@ -157,12 +166,28 @@ def init_wlist(
 
 def _strip_id(aedid: str) -> str:
     """ remove `tla`-prefix from string
+
     >>> _strip_id('tla113')
     '113'
     >>> _strip_id('113')
     '113'
+
     """
     return aedid.split('tla', maxsplit=1)[-1]
+
+
+def _get_id(entry: TagNode) -> str:
+    """ get value of a node's `xml:id` attribute
+
+    >>> e = new_tag_node('entry', attributes={f'{{{XML_NS}}}id': '1'})
+    >>> _get_id(e)
+    '1'
+
+    """
+    # pylint: disable=protected-access
+    return _strip_id(
+        entry._etree_obj.xpath('@xml:id')[0]
+    )
 
 
 def add_lemma_translations(
@@ -180,7 +205,7 @@ def add_lemma_translations(
     aed = Document(Path(xmlfile))
     added = {'entries': set(), 'translations': 0}
     for entry in aed.css_select('entry'):
-        _id = _strip_id(entry._etree_obj.xpath('@xml:id')[0])
+        _id = _get_id(entry)
         for lang, values in wlist.get(_id, {}).get('translations', {}).items():
             for value in values:
                 if not _has_translation(entry, lang, value):
@@ -215,6 +240,8 @@ def validate_file(filename: str):
 
 
 def main(**args):
+    """ execute cli commands
+    """
     if args['format']:
         print(f'prettify XML file {args["--file"]}')
         prettify_file(args['--file'])
