@@ -2,11 +2,14 @@
 Usage:
     peret.py format [ -f FILE ]
     peret.py add-translations [ -i FILE ]
+    peret.py validate [ -f FILE ]
 
 Commands:
     format                  prettify XML file
     add-translations        add translations from BTS couchdb dump zip file to
                             AED-TEI XML dictionary file
+    validate                validate an AED TEI file against the XML schema in
+                            files/aed_schema.xsd
 
 Options:
     -f FILE --file FILE     path to local XML file
@@ -23,7 +26,8 @@ from zipfile import ZipFile
 from functools import reduce
 
 import docopt
-from delb import Document, TagNode
+from delb import Document, TagNode, new_tag_node  # pylint: disable=import-error # noqa: E501
+import xmlschema  # pylint: disable=import-error
 
 XML_NS = "http://www.w3.org/XML/1998/namespace"
 
@@ -202,12 +206,22 @@ def prettify_file(filename: str):
     Document(fp).save(fp, pretty=True)
 
 
+def validate_file(filename: str):
+    """ validate XML file against AED XSD.
+    """
+    print(f'validate file {filename}...')
+    xsd = xmlschema.XMLSchema11('files/aed_schema.xsd')
+    xsd.validate(filename)
+
+
 def main(**args):
     if args['format']:
         print(f'prettify XML file {args["--file"]}')
         prettify_file(args['--file'])
     if args['add-translations']:
         add_lemma_translations(args['--input'], args['--file'])
+    if args['validate']:
+        validate_file(args['--file'])
 
 
 if __name__ == '__main__':
