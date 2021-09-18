@@ -1,3 +1,7 @@
+[![dictionary](https://github.com/JKatzwinkel/aed-tei/actions/workflows/dictionary.yml/badge.svg)](https://github.com/JKatzwinkel/aed-tei/actions/workflows/dictionary.yml)
+[![thesaurus](https://github.com/JKatzwinkel/aed-tei/actions/workflows/thesaurus.yml/badge.svg)](https://github.com/JKatzwinkel/aed-tei/actions/workflows/thesaurus.yml)
+---
+
 # aed-tei
 Corpus of Egyptian Texts for the AED - Ancient Egyptian Dictionary
 

@@ -1,0 +1,36 @@
+---
+
+name: validate-dict
+
+on: [push]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: clone repo
+        uses: actions/checkout@v2
+
+      - name: setup python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.9"
+
+      - name: install pipenv
+        run: python -mpip install pipenv
+
+      - name: cache-pipenv
+        uses: actions/cache@v1
+        with:
+          path: ~/.local/share/virtualenvs
+          key: ${{ runner.os }}-pipenv-${{ hashFiles('**/Pipfile.lock') }}
+
+      - name: install dependencies
+        if: steps.cache-pipenv.outputs.cache-hit != 'true'
+        run: pipenv install
+
+      - name: validate dictionary
+        run: pipenv run python peret.py validate -f files/dictionary.xml
+
+...
