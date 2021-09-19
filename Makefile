@@ -18,5 +18,8 @@ vocabulary: dump/vocabulary.zip ## download BTS vocabulary ZIP dump
 add-translations: dump/vocabulary.zip ## add translations from BTS dump to AED XML dictionary
 	pipenv run python peret.py add-translations -i dump/vocabulary.zip
 
+add-relations: dump/vocabulary.zip ## add relations from BTS dump to AED XML dictionary
+	pipenv run python peret.py add-relations -i dump/vocabulary.zip
+
 test: vocabulary ## run tests
 	pipenv run pytest --doctest-modules peret.py
