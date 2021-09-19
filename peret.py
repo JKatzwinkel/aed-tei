@@ -285,6 +285,7 @@ def init_wlist(
     {'de': ['Geier; Vogel (allg.)'], 'en': ['vulture; bird (gen.)']}
 
     """
+    print('init wlist')
     return {
         entry['_id']: _apply_functions(entry, functions)
         for entry in _load_wlist(filename=filename)
@@ -301,9 +302,11 @@ def patch_wlist(wlist: dict, functions: List[Callable] = None) -> dict:
     {'relations': {'root': ['2']}}
 
     """
+    print('patching wlist')
     for _id, entry in wlist.items():
         for func in functions:
             wlist[_id] = func(_id, entry, wlist)
+    print('patching done')
     return wlist
 
 
@@ -347,14 +350,31 @@ def process_wlist(
     and save result to the same XML file.
     """
     print(f'add {prop} from {inputfile} to {xmlfile}')
-    wlist = patch_wlist(
-        init_wlist(
-            filename=inputfile,
-            functions=extract_funcs
-        ),
-        functions=prep_funcs or []
-    )
+    print(f'load xml file {xmlfile}')
     aed = Document(Path(xmlfile))
+    xml_ids = set(
+        map(
+            _get_id,
+            aed.css_select('entry')
+        )
+    )
+    print('initialize registry')
+    wlist = {
+        _id: entry
+        for _id, entry in patch_wlist(
+            {
+                _id: entry
+                for _id, entry in init_wlist(
+                    filename=inputfile,
+                    functions=extract_funcs
+                ).items()
+                if _id in xml_ids
+            },
+            functions=prep_funcs or []
+        ).items()
+        if _id in xml_ids
+    }
+    print('process XML entries')
     _stats = {'entries': set(), 'elements': 0}
     for entry in aed.css_select('entry'):
         _id = _get_id(entry)
@@ -370,6 +390,7 @@ def process_wlist(
             f'{len(_stats["entries"])} entries.'
         )
     )
+    print(f'save results to {xmlfile}')
     aed.save(Path(xmlfile), pretty=True)
 
 
@@ -382,7 +403,8 @@ def add_lemma_relations(
     """
     process_wlist(
         inputfile=inputfile, xmlfile=xmlfile,
-        extract_funcs=[_relations], prep_funcs=[_verify_relations, _mirror_relations],
+        extract_funcs=[_relations],
+        prep_funcs=[_verify_relations, _mirror_relations],
         prop='relations', _has=_has_relation, _add=_add_relation
     )
 
