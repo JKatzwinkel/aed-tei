@@ -116,7 +116,7 @@ def _has_relation(e: TagNode, predicate: str, value: str) -> bool:
     """ determine whether `<entry/>` element contains specified relation.
 
     >>> e = Document(
-    ... '<entry><bibl><relatedItem type="root" target="tla1"/></bibl></entry>'
+    ... '<entry><xr type="root"><ref target="tla1"/></xr></entry>'
     ... )
     >>> _has_relation(e, 'root', '1')
     True
@@ -126,7 +126,7 @@ def _has_relation(e: TagNode, predicate: str, value: str) -> bool:
         return True
     return len(
         e.css_select(
-            f'bibl > relatedItem[type="{predicate}"][target="tla{value}"]'
+            f'entry > xr[type="{predicate}"] > ref[target="tla{value}"]'
         )
     ) > 0
 
@@ -136,19 +136,23 @@ def _add_relation(e: TagNode, predicate: str, value: str) -> TagNode:
 
     >>> e = Document('<entry/>').root
     >>> e =_add_relation(e, 'rootOf', '1')
+    >>> e =_add_relation(e, 'partOf', '3')
     >>> str(_add_relation(e, 'partOf', '2'))
-    '<entry><bibl><relatedItem type="rootOf" target="tla1"/>\
-<relatedItem type="partOf" target="tla2"/></bibl></entry>'
+    '<entry><xr type="rootOf"><ref target="tla1"/></xr>\
+<xr type="partOf"><ref target="tla3"/><ref target="tla2"/></xr></entry>'
 
     """
-    if len(e.xpath('./bibl')) < 1:
-        e.append_child(e.new_tag_node('bibl'))
-    bibl = e.xpath('./bibl')[0]
-    rel = bibl.new_tag_node(
-        'relatedItem',
-        attributes={'type': predicate, 'target': f'tla{value}'},
+    if len(e.xpath(f'./xr[@type="{predicate}"]')) < 1:
+        e.append_child(
+            e.new_tag_node(
+                'xr', attributes={'type': predicate}
+            )
+        )
+    e.xpath(f'./xr[@type="{predicate}"]')[0].append_child(
+        e.new_tag_node(
+            'ref', attributes={'target': f'tla{value}'},
+        )
     )
-    bibl.append_child(rel)
     return e
 
 
@@ -172,7 +176,7 @@ def _has_translation(e: TagNode, lang: str, value: str) -> bool:
         return True
     e.namespaces['xml'] = XML_NS
     for quote in e.css_select(
-        f'sense > cit[type="translation"][xml|lang="{lang}"] > quote'
+        f'entry > sense > cit[type="translation"][xml|lang="{lang}"] > quote'
     ):
         if value in map(str, quote.child_nodes()):
             return True
@@ -188,23 +192,25 @@ def _add_translation(e: TagNode, lang: str, value: str) -> TagNode:
 </cit></sense></entry>'
 
     """
-    if len(e.css_select('sense')) < 1:
-        e.append_child(e.new_tag_node('sense'))
-    sense = e.css_select('sense')[0]
-    cit = sense.new_tag_node(
-        'cit',
-        attributes={
-            'type': 'translation',
-            f'{{{XML_NS}}}lang': lang,
-        },
-        children=[
-            sense.new_tag_node(
-                'quote',
-                children=[value]
-            )
-        ]
+    if len(e.css_select('entry > sense')) < 1:
+        e.append_child(
+            e.new_tag_node('sense')
+        )
+    e.css_select('entry > sense')[0].append_child(
+        e.new_tag_node(
+            'cit',
+            attributes={
+                'type': 'translation',
+                f'{{{XML_NS}}}lang': lang,
+            },
+            children=[
+                e.new_tag_node(
+                    'quote',
+                    children=[value]
+                )
+            ]
+        )
     )
-    sense.append_child(cit)
     return e
 
 
@@ -285,7 +291,6 @@ def init_wlist(
     {'de': ['Geier; Vogel (allg.)'], 'en': ['vulture; bird (gen.)']}
 
     """
-    print('init wlist')
     return {
         entry['_id']: _apply_functions(entry, functions)
         for entry in _load_wlist(filename=filename)
@@ -302,11 +307,9 @@ def patch_wlist(wlist: dict, functions: List[Callable] = None) -> dict:
     {'relations': {'root': ['2']}}
 
     """
-    print('patching wlist')
     for _id, entry in wlist.items():
         for func in functions:
             wlist[_id] = func(_id, entry, wlist)
-    print('patching done')
     return wlist
 
 
