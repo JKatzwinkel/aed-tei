@@ -24,7 +24,10 @@ Options:
 """
 from typing import Iterable, List, Callable
 
+import re
 import json
+import lxml
+import requests
 from pathlib import Path
 from zipfile import ZipFile
 from functools import reduce
@@ -33,6 +36,7 @@ import docopt
 from delb import Document, TagNode  # pylint: disable=import-error
 import xmlschema  # pylint: disable=import-error
 
+RE_HTML_BODY = re.compile(r'<body>.*<\/body>')
 XML_NS = "http://www.w3.org/XML/1998/namespace"
 INVERSE = dict(
     reduce(
@@ -46,6 +50,26 @@ INVERSE = dict(
         []
     )
 )
+
+
+def load_aed_lemma_html(lemma_id: str) -> Document:
+    """ load AED lemma HTML body.
+
+    >>> lemma = load_aed_lemma_html('89500')
+    >>> len(lemma.css_select('p.most_relevant_occurrences > .transcription'))
+    5
+
+    """
+    html = ''.join(
+        requests.get(
+            'https://raw.githubusercontent.com/simondschweitzer/'
+            f'aed/gh-pages/{lemma_id}.html'
+        ).text.split('\n')
+    )
+    return Document(
+        RE_HTML_BODY.findall(html)[0],
+        parser=lxml.etree.XMLParser(recover=True)
+    )
 
 
 def _load_wlist(filename: str = 'dump/vocabulary.zip') -> Iterable[dict]:
