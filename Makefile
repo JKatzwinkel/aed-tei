@@ -15,10 +15,15 @@ dump/vocabulary.zip: | dump
 
 vocabulary: dump/vocabulary.zip ## download BTS vocabulary ZIP dump
 
-add-translations: dump/vocabulary.zip ## add translations from BTS dump to AED XML dictionary
+dump/corpus.zip: | dump
+	wget https://edoc.bbaw.de/files/2919/corpus.zip -O dump/corpus.zip
+
+corpus: dump/corpus.zip ## download BTS corpus ZIP dump
+
+add-translations: vocabulary ## add translations from BTS dump to AED XML dictionary
 	pipenv run python peret.py add-translations -i dump/vocabulary.zip
 
-add-relations: dump/vocabulary.zip ## add relations from BTS dump to AED XML dictionary
+add-relations: vocabulary ## add relations from BTS dump to AED XML dictionary
 	pipenv run python peret.py add-relations -i dump/vocabulary.zip
 
 test: vocabulary ## run tests
