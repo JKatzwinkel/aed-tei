@@ -20,6 +20,11 @@ dump/corpus.zip: | dump
 
 corpus: dump/corpus.zip ## download BTS corpus ZIP dump
 
+dump/gh-pages.zip: | dump
+	wget https://github.com/simondschweitzer/aed/archive/refs/heads/gh-pages.zip -O dump/gh-pages.zip
+
+aed-dictionary: dump/gh-pages.zip ## download AED dictionary HTML files ZIP archive
+
 add-translations: vocabulary ## add translations from BTS dump to AED XML dictionary
 	pipenv run python peret.py add-translations -i dump/vocabulary.zip
 
