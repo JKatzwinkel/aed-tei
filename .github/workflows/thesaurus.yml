@@ -2,7 +2,7 @@
 
 name: validate-ths
 
-on: [push]
+on: []
 
 jobs:
   validate:

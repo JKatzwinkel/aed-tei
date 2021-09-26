@@ -2,7 +2,7 @@
 
 name: validate-dict
 
-on: [push]
+on: []
 
 jobs:
   validate:
