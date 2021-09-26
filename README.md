@@ -28,3 +28,23 @@ by Simon D. Schweitzer, 2019
 
 ## transformation code
 to be published (soon)
+
+### AED data utility tool `peret`
+
+requires:
+
+- [Pipenv](https://pipenv.pypa.io/en/latest/)
+- `make`
+
+#### installation and initialization:
+
+```bash
+  pipenv install --dev
+  make test
+```
+
+#### usage:
+
+```bash
+  pipenv run peret --help
+```

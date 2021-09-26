@@ -4,7 +4,7 @@ DEFAULT_GOAL := help
 .PHONY: help vocabulary corpus aed-dictionary add-translations add-relations test
 
 
-help:
+help: ## print target description
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z.\/_-]+:.*?## / {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 dump: ## create BTS corpus dump folder
@@ -26,10 +26,10 @@ dump/gh-pages.zip: | dump
 aed-dictionary: dump/gh-pages.zip ## download AED dictionary HTML files ZIP archive
 
 add-translations: vocabulary ## add translations from BTS dump to AED XML dictionary
-	pipenv run python peret.py add-translations -i dump/vocabulary.zip
+	pipenv run peret add-translations -i dump/vocabulary.zip
 
 add-relations: vocabulary ## add relations from BTS dump to AED XML dictionary
-	pipenv run python peret.py add-relations -i dump/vocabulary.zip
+	pipenv run peret add-relations -i dump/vocabulary.zip
 
 test: vocabulary aed-dictionary ## run tests
 	pipenv run pytest --doctest-modules peret
