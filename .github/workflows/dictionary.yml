@@ -31,6 +31,6 @@ jobs:
         run: pipenv install
 
       - name: validate dictionary
-        run: pipenv run python peret.py validate -f files/dictionary.xml
+        run: pipenv run peret validate -f files/dictionary.xml
 
 ...
