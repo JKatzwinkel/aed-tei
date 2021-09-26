@@ -1,7 +1,7 @@
 
 DEFAULT_GOAL := help
 
-.PHONY: help vocabulary add-translations
+.PHONY: help vocabulary corpus aed-dictionary add-translations add-relations test
 
 
 help:
@@ -31,5 +31,5 @@ add-translations: vocabulary ## add translations from BTS dump to AED XML dictio
 add-relations: vocabulary ## add relations from BTS dump to AED XML dictionary
 	pipenv run python peret.py add-relations -i dump/vocabulary.zip
 
-test: vocabulary ## run tests
-	pipenv run pytest --doctest-modules peret.py
+test: vocabulary aed-dictionary ## run tests
+	pipenv run pytest --doctest-modules peret

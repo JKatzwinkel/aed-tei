@@ -22,21 +22,20 @@ Options:
                             [default: dump/vocabulary.zip]
 
 """
-from typing import Iterable, List, Callable
+from typing import List, Callable
 
-import re
-import json
-import lxml
-import requests
 from pathlib import Path
-from zipfile import ZipFile
 from functools import reduce
 
 import docopt
 from delb import Document, TagNode  # pylint: disable=import-error
 import xmlschema  # pylint: disable=import-error
 
-RE_HTML_BODY = re.compile(r'<body>.*<\/body>')
+from .providers import (
+    bts,
+    register_qualified_property,
+)
+
 XML_NS = "http://www.w3.org/XML/1998/namespace"
 INVERSE = dict(
     reduce(
@@ -50,90 +49,6 @@ INVERSE = dict(
         []
     )
 )
-
-
-def load_aed_lemma_html(lemma_id: str) -> Document:
-    """ load AED lemma HTML body.
-
-    >>> lemma = load_aed_lemma_html('89500')
-    >>> len(lemma.css_select('p.most_relevant_occurrences > .transcription'))
-    5
-
-    """
-    html = ''.join(
-        requests.get(
-            'https://raw.githubusercontent.com/simondschweitzer/'
-            f'aed/gh-pages/{lemma_id}.html'
-        ).text.split('\n')
-    )
-    return Document(
-        RE_HTML_BODY.findall(html)[0],
-        parser=lxml.etree.XMLParser(recover=True)
-    )
-
-
-def _load_wlist(filename: str = 'dump/vocabulary.zip') -> Iterable[dict]:
-    """ load lemma list from BTS couchdb dump ZIP file.
-    Returns a generator.
-
-    >>> len(list(_load_wlist()))
-    38775
-
-    """
-    with ZipFile(filename) as z:
-        with z.open('aaew_wlist.json') as f:
-            wlist = json.load(f)
-    yield from wlist
-
-
-def _register_bts_qualified_property(
-    registry: dict, qualifier: str, value: str
-) -> dict:
-    """ add a value to the list stored under the accompaning qualifier.
-
-    >>> _register_bts_qualified_property({}, 'k', 'v')
-    {'k': ['v']}
-
-    """
-    if qualifier and value:
-        registry[qualifier] = registry.get(qualifier, []) + [value]
-    return registry
-
-
-def _translations(bts_entry: dict) -> dict:
-    """ extract translations from BTS couchdb dump JSON object and group
-    them under their language values.
-
-    >>> t = {'value': 'vulture', 'lang': 'en'}
-    >>> _translations({'translations': {'translations': [t]}})
-    {'translations': {'en': ['vulture']}}
-
-    """
-    res = {}
-    for translation in bts_entry.get('translations', {}).get(
-        'translations', []
-    ):
-        _register_bts_qualified_property(
-            res, translation.get('lang'), translation.get('value')
-        )
-    return {'translations': res}
-
-
-def _relations(bts_entry: dict) -> dict:
-    """ extract relations of BTS couchdb dump JSON object and group them
-    under their respective predicates.
-
-    >>> r = {'type': 'rootOf', 'objectId': '48620'}
-    >>> _relations({'relations': [r]})
-    {'relations': {'rootOf': ['48620']}}
-
-    """
-    res = {}
-    for relation in bts_entry.get('relations', []):
-        _register_bts_qualified_property(
-            res, relation.get('type'), relation.get('objectId')
-        )
-    return {'relations': res}
 
 
 def _has_relation(e: TagNode, predicate: str, value: str) -> bool:
@@ -238,7 +153,7 @@ def _add_translation(e: TagNode, lang: str, value: str) -> TagNode:
     return e
 
 
-def _verify_relations(entry_id: str, entry: dict, wlist: dict) -> dict:
+def _verify_relations(_: str, entry: dict, wlist: dict) -> dict:
     """ Remove relations of which the targets don't exist.
 
     >>> wlist = {'2': {}}
@@ -273,52 +188,10 @@ def _mirror_relations(entry_id: str, entry: dict, wlist: dict) -> dict:
                 print(f'{value=} same as {entry_id=}! ({predicate=})')
                 continue
             target = wlist.get(value, {})
-            target['relations'] = _register_bts_qualified_property(
+            target['relations'] = register_qualified_property(
                 target.get('relations', {}), INVERSE[predicate], entry_id
             )
     return entry
-
-
-def _apply_functions(
-    entry: dict, functions: List[Callable] = [_translations]
-) -> dict:
-    """ apply a list of functions to a BTS couchdb dump entry in order to
-    extract and transform properties.
-
-    >>> f1 = lambda e: {'a': e['A']}
-    >>> f2 = lambda e: {'b': e['B']}
-    >>> _apply_functions({'A': 1, 'B': 2}, functions=[f1, f2])
-    {'a': 1, 'b': 2}
-
-    """
-    return reduce(
-        lambda a, b: {**a, **b},
-        [f(entry) for f in functions],
-        {}
-    )
-
-
-def init_wlist(
-    filename: str = 'dump/vocabulary.zip',
-    functions: List[Callable] = [_translations],
-) -> dict:
-    """ load lemma list from BTS couchdb dump ZIP file and create a dict which
-    assigns extracted properties of each lemma entry to its `_id`.
-    Custom functions can be passed to be used to extract properties from the
-    BTS lemma entries.
-
-    >>> f = lambda entry: {'id': entry['_id']}
-    >>> init_wlist(functions=[f])['1']
-    {'id': '1'}
-
-    >>> init_wlist()['1']['translations']
-    {'de': ['Geier; Vogel (allg.)'], 'en': ['vulture; bird (gen.)']}
-
-    """
-    return {
-        entry['_id']: _apply_functions(entry, functions)
-        for entry in _load_wlist(filename=filename)
-    }
 
 
 def patch_wlist(wlist: dict, functions: List[Callable] = None) -> dict:
@@ -391,7 +264,7 @@ def process_wlist(
         for _id, entry in patch_wlist(
             {
                 _id: entry
-                for _id, entry in init_wlist(
+                for _id, entry in bts.init_wlist(
                     filename=inputfile,
                     functions=extract_funcs
                 ).items()
@@ -430,7 +303,7 @@ def add_lemma_relations(
     """
     process_wlist(
         inputfile=inputfile, xmlfile=xmlfile,
-        extract_funcs=[_relations],
+        extract_funcs=[bts.get_relations],
         prep_funcs=[_verify_relations, _mirror_relations],
         prop='relations', _has=_has_relation, _add=_add_relation
     )
@@ -445,7 +318,7 @@ def add_lemma_translations(
     """
     process_wlist(
         inputfile=inputfile, xmlfile=xmlfile,
-        extract_funcs=[_translations], prop='translations',
+        extract_funcs=[bts.get_translations], prop='translations',
         _has=_has_translation, _add=_add_translation
     )
 
@@ -468,9 +341,10 @@ def validate_file(filename: str):
     xsd.validate(filename)
 
 
-def main(**args):
+def main():
     """ execute cli commands
     """
+    args = docopt.docopt(__doc__)
     if args['format']:
         print(f'prettify XML file {args["--file"]}')
         prettify_file(args['--file'])
@@ -483,6 +357,4 @@ def main(**args):
 
 
 if __name__ == '__main__':
-    main(
-        **docopt.docopt(__doc__)
-    )
+    main()

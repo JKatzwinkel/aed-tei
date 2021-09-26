@@ -4,12 +4,10 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-delb = {extras = ["https-loader"], version = "*"}
-pytest = "*"
-docopt = "*"
-xmlschema = "*"
+peret = {editable = true, path = "."}
 
 [dev-packages]
+pytest = "*"
 
 [requires]
 python_version = "3.9"
