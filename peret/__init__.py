@@ -153,6 +153,31 @@ def _add_translation(e: TagNode, lang: str, value: str) -> TagNode:
     return e
 
 
+def _has_daterange(e: TagNode, pred: str, value: str) -> bool:
+    """
+
+    >>> e = Document(
+    ... '''<category><catDesc><date from="-1745" to="-1730"/>
+    ... Sebekhotep IV.</catDesc></category>'''
+    ... )
+    >>> _has_daterange(e, 'beginning', '-1745')
+    True
+
+    >>> _has_daterange(e, 'end', '-1731')
+    False
+
+    """
+    attribute = {
+        'beginning': 'from',
+        'end': 'to'
+    }.get(pred)
+    return len(
+        e.css_select(
+            f'category > catDesc > date[{attribute}="{value}"]'
+        )
+    ) > 0
+
+
 def _verify_relations(_: str, entry: dict, wlist: dict) -> dict:
     """ Remove relations of which the targets don't exist.
 
@@ -264,8 +289,9 @@ def process_wlist(
         for _id, entry in patch_wlist(
             {
                 _id: entry
-                for _id, entry in bts.init_wlist(
+                for _id, entry in bts.init_vocab(
                     filename=inputfile,
+                    vocab='aaew_wlist',
                     functions=extract_funcs
                 ).items()
                 if _id in xml_ids

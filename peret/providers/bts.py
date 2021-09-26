@@ -9,16 +9,23 @@ from functools import reduce
 from . import register_qualified_property
 
 
-def load_wlist(filename: str = 'dump/vocabulary.zip') -> Iterable[dict]:
-    """ load lemma list from BTS couchdb dump ZIP file.
+def load_vocabulary(
+    filename: str = 'dump/vocabulary.zip',
+    vocab: str = 'aaew_wlist',
+) -> Iterable[dict]:
+    """
+    load lemma list from BTS couchdb dump ZIP file.
     Returns a generator.
 
-    >>> len(list(load_wlist()))
+    >>> len(list(load_vocabulary()))
     38775
+
+    >>> len(list(load_vocabulary(vocab='aaew_ths')))
+    4270
 
     """
     with ZipFile(filename) as z:
-        with z.open('aaew_wlist.json') as f:
+        with z.open(f'{vocab}.json') as f:
             wlist = json.load(f)
     yield from wlist
 
@@ -59,6 +66,59 @@ def get_relations(bts_entry: dict) -> dict:
     return {'relations': res}
 
 
+def extract_passport_values(node: dict, path: str) -> list:
+    """ recursively traverse passport tree in attempt to extract value(s)
+    addressed by dot-seperated path.
+
+    >>> c1={'type': 'c', 'value': 2}
+    >>> extract_passport_values(c1, 'c')
+    [2]
+
+    >>> extract_passport_values({'children': [c1]}, '.c')
+    [2]
+
+    >>> c2={'type': 'c', 'value': 3}
+    >>> b={'children': [c1, c2], 'type': 'b'}
+    >>> a={'children': [b], 'type': 'a'}
+    >>> p={'children': [a]}
+    >>> extract_passport_values(p, '.a.b.c')
+    [2, 3]
+
+    """
+    res = []
+    segments = path.split('.')
+    if len(segments) == 1 and node.get('type') == segments[-1]:
+        return [node.get('value')]
+    for child in node.get(segments[0], node).get('children', []):
+        res += extract_passport_values(
+            child, '.'.join(segments[1:])
+        )
+    return res
+
+
+def get_ths_entry_dates(bts_entry: dict) -> dict:
+    """ extract BTS date thesaurus entry boundaries from passport.
+
+    >>> d1 = {'type': 'beginning', 'value': '-250'}
+    >>> d2 = {'type': 'end', 'value': '-201'}
+    >>> mg = {'type': 'main_group', 'children': [d1, d2]}
+    >>> td = {'type': 'thesaurus_date', 'children': [mg]}
+    >>> entry = {'passport': {'children': [td]}}
+    >>> get_ths_entry_dates(entry)
+    {'dates': {'beginning': ['-250'], 'end': ['-201']}}
+
+    """
+    return {
+        'dates': {
+            key: extract_passport_values(
+                bts_entry.get('passport', {}),
+                f'.thesaurus_date.main_group.{key}'
+            )
+            for key in ['beginning', 'end']
+        }
+    }
+
+
 def apply_functions(
     entry: dict, functions: List[Callable] = [get_translations]
 ) -> dict:
@@ -78,8 +138,9 @@ def apply_functions(
     )
 
 
-def init_wlist(
+def init_vocab(
     filename: str = 'dump/vocabulary.zip',
+    vocab: str = 'aaew_wlist',
     functions: List[Callable] = [get_translations],
 ) -> dict:
     """ load lemma list from BTS couchdb dump ZIP file and create a dict which
@@ -88,14 +149,17 @@ def init_wlist(
     BTS lemma entries.
 
     >>> f = lambda entry: {'id': entry['_id']}
-    >>> init_wlist(functions=[f])['1']
+    >>> init_vocab(functions=[f])['1']
     {'id': '1'}
 
-    >>> init_wlist()['1']['translations']
+    >>> init_vocab()['1']['translations']
     {'de': ['Geier; Vogel (allg.)'], 'en': ['vulture; bird (gen.)']}
 
     """
     return {
         entry['_id']: apply_functions(entry, functions)
-        for entry in load_wlist(filename=filename)
+        for entry in load_vocabulary(
+            filename=filename,
+            vocab=vocab,
+        )
     }
