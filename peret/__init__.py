@@ -49,6 +49,10 @@ INVERSE = dict(
         []
     )
 )
+DATERANGE_BOUNDS = {
+    'beginning': 'from',
+    'end': 'to'
+}
 
 
 def _has_relation(e: TagNode, predicate: str, value: str) -> bool:
@@ -74,8 +78,8 @@ def _add_relation(e: TagNode, predicate: str, value: str) -> TagNode:
     """ add relation to `<entry/>` node.
 
     >>> e = Document('<entry/>').root
-    >>> e =_add_relation(e, 'rootOf', '1')
-    >>> e =_add_relation(e, 'partOf', '3')
+    >>> e = _add_relation(e, 'rootOf', '1')
+    >>> e = _add_relation(e, 'partOf', '3')
     >>> str(_add_relation(e, 'partOf', '2'))
     '<entry><xr type="rootOf"><ref target="tla1"/></xr>\
 <xr type="partOf"><ref target="tla3"/><ref target="tla2"/></xr></entry>'
@@ -167,15 +171,35 @@ def _has_daterange(e: TagNode, pred: str, value: str) -> bool:
     False
 
     """
-    attribute = {
-        'beginning': 'from',
-        'end': 'to'
-    }.get(pred)
+    attribute = DATERANGE_BOUNDS.get(pred)
     return len(
         e.css_select(
             f'category > catDesc > date[{attribute}="{value}"]'
         )
     ) > 0
+
+
+def _add_daterange(e: TagNode, pred: str, value: str) -> TagNode:
+    """ add daterange to `<category>` node in AED thesaurus.
+
+    >>> e = Document('<category/>').root
+    >>> e = _add_daterange(e, 'beginning', '-1745')
+    >>> str(_add_daterange(e, 'end', '-1730'))
+    '<category><catDesc><date from="-1745" to="-1730"/></catDesc></category>'
+
+    """
+    if len(e.css_select('category > catDesc')) < 1:
+        e.append_child(
+            e.new_tag_node('catDesc')
+        )
+    if len(e.css_select('category > catDesc > date')) < 1:
+        e.css_select('category > catDesc')[0].append_child(
+            e.new_tag_node('date')
+        )
+    e.css_select('category > catDesc > date')[0].attributes[
+        DATERANGE_BOUNDS.get(pred)
+    ] = value
+    return e
 
 
 def _verify_relations(_: str, entry: dict, wlist: dict) -> dict:
