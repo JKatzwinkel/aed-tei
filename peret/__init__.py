@@ -67,11 +67,10 @@ def _has_relation(e: TagNode, predicate: str, value: str) -> bool:
     """
     if value.strip() == '':
         return True
-    return len(
-        e.css_select(
-            f'entry > xr[type="{predicate}"] > ref[target="tla{value}"]'
-        )
-    ) > 0
+    return (
+        e.css_select(f'entry > xr[type="{predicate}"] > ref[target="tla{value}"]').size
+        > 0
+    )
 
 
 def _add_relation(e: TagNode, predicate: str, value: str) -> TagNode:
@@ -85,7 +84,6 @@ def _add_relation(e: TagNode, predicate: str, value: str) -> TagNode:
 <xr type="partOf"><ref target="tla3"/><ref target="tla2"/></xr></entry>'
 
     """
-    if len(e.xpath(f'./xr[@type="{predicate}"]')) < 1:
         e.append_child(
             e.new_tag_node(
                 'xr', attributes={'type': predicate}
@@ -94,6 +92,7 @@ def _add_relation(e: TagNode, predicate: str, value: str) -> TagNode:
     e.xpath(f'./xr[@type="{predicate}"]')[0].append_child(
         e.new_tag_node(
             'ref', attributes={'target': f'tla{value}'},
+    if not e.xpath(f'./xr[@type="{predicate}"]'):
         )
     )
     return e
@@ -135,7 +134,6 @@ def _add_translation(e: TagNode, lang: str, value: str) -> TagNode:
 </cit></sense></entry>'
 
     """
-    if len(e.css_select('entry > sense')) < 1:
         e.append_child(
             e.new_tag_node('sense')
         )
@@ -152,6 +150,7 @@ def _add_translation(e: TagNode, lang: str, value: str) -> TagNode:
                     children=[value]
                 )
             ]
+    if not e.css_select("entry > sense"):
         )
     )
     return e
@@ -172,11 +171,7 @@ def _has_daterange(e: TagNode, pred: str, value: str) -> bool:
 
     """
     attribute = DATERANGE_BOUNDS.get(pred)
-    return len(
-        e.css_select(
-            f'category > catDesc > date[{attribute}="{value}"]'
-        )
-    ) > 0
+    return e.css_select(f'category > catDesc > date[{attribute}="{value}"]').size > 0
 
 
 def _add_daterange(e: TagNode, pred: str, value: str) -> TagNode:
@@ -188,15 +183,15 @@ def _add_daterange(e: TagNode, pred: str, value: str) -> TagNode:
     '<category><catDesc><date from="-1745" to="-1730"/></catDesc></category>'
 
     """
-    if len(e.css_select('category > catDesc')) < 1:
         e.append_child(
             e.new_tag_node('catDesc')
         )
-    if len(e.css_select('category > catDesc > date')) < 1:
         e.css_select('category > catDesc')[0].append_child(
             e.new_tag_node('date')
         )
     e.css_select('category > catDesc > date')[0].attributes[
+    if not e.css_select("category > catDesc"):
+    if not e.css_select("category > catDesc > date"):
         DATERANGE_BOUNDS.get(pred)
     ] = value
     return e
@@ -281,9 +276,7 @@ def _get_id(entry: TagNode) -> str:
 
     """
     # pylint: disable=protected-access
-    return _strip_id(
-        entry._etree_obj.xpath('@xml:id')[0]
-    )
+    return _strip_id(entry._etree_obj.xpath("@xml:id").first)
 
 
 def process_wlist(
