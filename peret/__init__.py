@@ -28,7 +28,7 @@ from pathlib import Path
 from functools import reduce
 
 import docopt
-from delb import Document, TagNode  # pylint: disable=import-error
+from delb import Document, TagNode, tag  # pylint: disable=import-error
 import xmlschema  # pylint: disable=import-error
 
 from .providers import (
@@ -84,15 +84,12 @@ def _add_relation(e: TagNode, predicate: str, value: str) -> TagNode:
 <xr type="partOf"><ref target="tla3"/><ref target="tla2"/></xr></entry>'
 
     """
-        e.append_child(
-            e.new_tag_node(
-                'xr', attributes={'type': predicate}
-            )
-        )
-    e.xpath(f'./xr[@type="{predicate}"]')[0].append_child(
-        e.new_tag_node(
-            'ref', attributes={'target': f'tla{value}'},
     if not e.xpath(f'./xr[@type="{predicate}"]'):
+        e.append_child(tag("xr", {"type": predicate}))
+    e.xpath(f'./xr[@type="{predicate}"]').first.append_child(
+        tag(
+            "ref",
+            {"target": f"tla{value}"},
         )
     )
     return e
@@ -134,23 +131,13 @@ def _add_translation(e: TagNode, lang: str, value: str) -> TagNode:
 </cit></sense></entry>'
 
     """
-        e.append_child(
-            e.new_tag_node('sense')
-        )
-    e.css_select('entry > sense')[0].append_child(
-        e.new_tag_node(
-            'cit',
-            attributes={
-                'type': 'translation',
-                f'{{{XML_NS}}}lang': lang,
-            },
-            children=[
-                e.new_tag_node(
-                    'quote',
-                    children=[value]
-                )
-            ]
     if not e.css_select("entry > sense"):
+        e.append_child(tag("sense"))
+    e.css_select("entry > sense").first_child.append_child(
+        tag(
+            "cit",
+            {"type": "translation", f"{{{XML_NS}}}lang": lang},
+            tag("quote", value),
         )
     )
     return e
@@ -183,15 +170,11 @@ def _add_daterange(e: TagNode, pred: str, value: str) -> TagNode:
     '<category><catDesc><date from="-1745" to="-1730"/></catDesc></category>'
 
     """
-        e.append_child(
-            e.new_tag_node('catDesc')
-        )
-        e.css_select('category > catDesc')[0].append_child(
-            e.new_tag_node('date')
-        )
-    e.css_select('category > catDesc > date')[0].attributes[
     if not e.css_select("category > catDesc"):
+        e.append_child(tag("catDesc"))
     if not e.css_select("category > catDesc > date"):
+        e.css_select("category > catDesc").first.append_child(tag("date"))
+    e.css_select("category > catDesc > date").first.attributes[
         DATERANGE_BOUNDS.get(pred)
     ] = value
     return e
