@@ -117,7 +117,6 @@ def _has_translation(e: TagNode, lang: str, value: str) -> bool:
     """
     if value.strip() == '':
         return True
-    e.namespaces['xml'] = XML_NS
     for quote in e.css_select(
         f'entry > sense > cit[type="translation"][xml|lang="{lang}"] > quote'
     ):
