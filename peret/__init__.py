@@ -117,7 +117,7 @@ def _has_translation(e: TagNode, lang: str, value: str) -> bool:
     for quote in e.css_select(
         f'entry > sense > cit[type="translation"][xml|lang="{lang}"] > quote'
     ):
-        if value in map(str, quote.child_nodes()):
+        if value in quote.full_text:
             return True
     return False
 
