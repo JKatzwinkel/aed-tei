@@ -117,7 +117,11 @@ def _has_translation(e: TagNode, lang: str, value: str) -> bool:
     for quote in e.css_select(
         f'entry > sense > cit[type="translation"][xml|lang="{lang}"] > quote'
     ):
-        if value in quote.full_text:
+    return e.css_select(
+        f'entry > sense > cit[type="translation"][xml|lang="{lang}"] > quote'
+    ).filtered_by(
+        lambda quote: quote.full_text == value
+    ).size > 0
             return True
     return False
 
@@ -133,7 +137,7 @@ def _add_translation(e: TagNode, lang: str, value: str) -> TagNode:
     """
     if not e.css_select("entry > sense"):
         e.append_child(tag("sense"))
-    e.css_select("entry > sense").first_child.append_child(
+    e.css_select("entry > sense").first.append_child(
         tag(
             "cit",
             {"type": "translation", f"{{{XML_NS}}}lang": lang},
@@ -259,7 +263,9 @@ def _get_id(entry: TagNode) -> str:
 
     """
     # pylint: disable=protected-access
-    return _strip_id(entry._etree_obj.xpath("@xml:id").first)
+    return _strip_id(
+        entry.attributes.get(f'{{{XML_NS}}}id')
+    )
 
 
 def process_wlist(
