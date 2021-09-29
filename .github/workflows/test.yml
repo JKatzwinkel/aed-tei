@@ -1,0 +1,29 @@
+---
+
+name: test
+
+on: [push]
+
+jobs:
+  test:
+	  runs-on: ubuntu-latest
+
+		steps:
+		  - name: clone repo
+			  uses: actions/checkout@v2
+
+			- name: setup python
+			  uses: actions/setup-python@v2
+				with:
+				  python-version: "3.9"
+
+			- name: install pipenv
+			  run: python -mpip install pipenv
+
+			- name: install dependencies
+			  run: pipenv install --dev
+
+			- name: run doctests
+			  run: pipenv run pytest --doctest-modules peret
+
+...
