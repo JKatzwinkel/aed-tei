@@ -20,7 +20,14 @@ jobs:
       - name: install pipenv
         run: python -mpip install pipenv
 
+      - name: cache-pipenv
+        uses: actions/cache@v1
+        with:
+          path: ~/.local/share/virtualenvs
+          key: ${{ runner.os }}-pipenv-${{ hashFiles('**/Pipfile.lock') }}
+
       - name: install dependencies
+        if: steps.cache-pipenv.outputs.cache-hit != 'true'
         run: pipenv install --dev
 
       - name: run doctests
