@@ -2,7 +2,7 @@
 
 name: validate-dict
 
-on: []
+on: workflow_dispatch
 
 jobs:
   validate:
