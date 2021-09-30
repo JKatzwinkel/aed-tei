@@ -114,16 +114,11 @@ def _has_translation(e: TagNode, lang: str, value: str) -> bool:
     if value.strip() == '':
         return True
     e.namespaces['xml'] = XML_NS
-    for quote in e.css_select(
-        f'entry > sense > cit[type="translation"][xml|lang="{lang}"] > quote'
-    ):
     return e.css_select(
         f'entry > sense > cit[type="translation"][xml|lang="{lang}"] > quote'
     ).filtered_by(
         lambda quote: quote.full_text == value
     ).size > 0
-            return True
-    return False
 
 
 def _add_translation(e: TagNode, lang: str, value: str) -> TagNode:
