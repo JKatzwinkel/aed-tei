@@ -2,7 +2,7 @@
 
 name: validate-ths
 
-on: []
+on: workflow_dispatch
 
 jobs:
   validate:
