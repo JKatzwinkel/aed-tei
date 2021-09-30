@@ -92,10 +92,11 @@ def load_lemmata(
     elements tho). Maximum number of lemmata might be capped using `num`
     parameter.
 
-    >>> len(list(load_lemmata(num=10)))
+    >>> fn = 'test/dump/gh-pages.zip'
+    >>> len(list(load_lemmata(filename=fn, num=10)))
     10
 
-    >>> list(load_lemmata(num=1))[0].root.local_name
+    >>> list(load_lemmata(filename=fn, num=1))[0].root.local_name
     'body'
 
     """

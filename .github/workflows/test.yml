@@ -1,11 +1,11 @@
 ---
 
-name: validate-dict
+name: test
 
-on: workflow_dispatch
+on: [push]
 
 jobs:
-  validate:
+  test:
     runs-on: ubuntu-latest
 
     steps:
@@ -28,9 +28,9 @@ jobs:
 
       - name: install dependencies
         if: steps.cache-pipenv.outputs.cache-hit != 'true'
-        run: pipenv install
+        run: pipenv install --dev
 
-      - name: validate dictionary
-        run: pipenv run peret validate -f files/dictionary.xml
+      - name: run doctests
+        run: pipenv run pytest --doctest-modules peret
 
 ...

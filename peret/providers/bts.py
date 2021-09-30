@@ -17,11 +17,12 @@ def load_vocabulary(
     load lemma list from BTS couchdb dump ZIP file.
     Returns a generator.
 
-    >>> len(list(load_vocabulary()))
-    38775
+    >>> fn = 'test/dump/vocabulary.zip'
+    >>> len(list(load_vocabulary(filename=fn)))
+    2
 
-    >>> len(list(load_vocabulary(vocab='aaew_ths')))
-    4270
+    >>> len(list(load_vocabulary(filename=fn, vocab='aaew_ths')))
+    5
 
     """
     with ZipFile(filename) as z:
@@ -149,10 +150,11 @@ def init_vocab(
     BTS lemma entries.
 
     >>> f = lambda entry: {'id': entry['_id']}
-    >>> init_vocab(functions=[f])['1']
+    >>> fn = 'test/dump/vocabulary.zip'
+    >>> init_vocab(filename=fn, functions=[f])['1']
     {'id': '1'}
 
-    >>> init_vocab()['1']['translations']
+    >>> init_vocab(filename=fn)['1']['translations']
     {'de': ['Geier; Vogel (allg.)'], 'en': ['vulture; bird (gen.)']}
 
     """

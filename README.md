@@ -1,3 +1,4 @@
+[![tests](https://github.com/JKatzwinkel/aed-tei/actions/workflows/test.yml/badge.svg)](https://github.com/JKatzwinkel/aed-tei/actions/workflows/test.yml)
 [![dictionary](https://github.com/JKatzwinkel/aed-tei/actions/workflows/dictionary.yml/badge.svg)](https://github.com/JKatzwinkel/aed-tei/actions/workflows/dictionary.yml)
 [![thesaurus](https://github.com/JKatzwinkel/aed-tei/actions/workflows/thesaurus.yml/badge.svg)](https://github.com/JKatzwinkel/aed-tei/actions/workflows/thesaurus.yml)
 ---
