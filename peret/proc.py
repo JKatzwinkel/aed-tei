@@ -5,37 +5,9 @@ import dataclasses
 from pathlib import Path
 from typing import Callable, Iterable
 
-import delb
+from delb import Document, TagNode
 
-
-XML_NS = "http://www.w3.org/XML/1998/namespace"
-
-
-def _strip_id(aedid: str) -> str:
-    """ remove `tla`-prefix from string
-
-    >>> _strip_id('tla113')
-    '113'
-    >>> _strip_id('113')
-    '113'
-
-    """
-    return aedid.split('tla', maxsplit=1)[-1]
-
-
-def _get_id(entry: delb.TagNode) -> str:
-    """ get value of a node's `xml:id` attribute
-
-    >>> from delb import new_tag_node
-    >>> e = new_tag_node('entry', attributes={f'{{{XML_NS}}}id': '1'})
-    >>> _get_id(e)
-    '1'
-
-    """
-    # pylint: disable=protected-access
-    return _strip_id(
-        entry.attributes.get(f'{{{XML_NS}}}id')
-    )
+from .inserters import _get_id
 
 
 @dataclasses.dataclass
@@ -47,14 +19,14 @@ class SourceDef:
 
 
 @dataclasses.dataclass
-class PropertyAddition:
+class PropertyInsertion:
     """ define a source registry property to be added to target nodes,
     and the functions used to determine whether it already exists and
     to insert it if not.
     """
     property_name: str
-    has_property: Callable[delb.TagNode, str, str, bool]
-    add_property: Callable[delb.TagNode, str, str, delb.TagNode]
+    has_property: Callable[TagNode, str, str, bool]
+    add_property: Callable[TagNode, str, str, TagNode]
 
 
 @dataclasses.dataclass
@@ -78,17 +50,17 @@ class TargetDef:
     """
     xmlfile: str = 'files/dictionary.xml'
     element: str = 'entry'
-    _doc: delb.Document = dataclasses.field(
+    _doc: Document = dataclasses.field(
         init=False,
     )
 
     def __post_init__(self):
         self._doc = self._load()
 
-    def _load(self) -> delb.Document:
+    def _load(self) -> Document:
         """ load XML file into delb Document
         """
-        return delb.Document(Path(self.xmlfile))
+        return Document(Path(self.xmlfile))
 
     def save(self):
         """ save delb Document to target file.
@@ -106,7 +78,7 @@ class TargetDef:
             )
         )
 
-    def get_elements(self) -> Iterable[delb.TagNode]:
+    def get_elements(self) -> Iterable[TagNode]:
         """ produce all the elements of interest in the target XML document
         """
         yield from self._doc.css_select(self.element)
