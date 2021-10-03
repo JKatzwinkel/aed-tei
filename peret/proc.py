@@ -19,6 +19,15 @@ class SourceDef:
 
 
 @dataclasses.dataclass
+class PropertyExtraction:
+    """ define how properties get extracted from BTS data source and processed
+    before inserting them into an AED target model.
+    """
+    extract_funcs: list[Callable[dict, dict]]
+    patch_funcs: list[Callable[str, dict, dict, dict]]
+
+
+@dataclasses.dataclass
 class PropertyInsertion:
     """ define a source registry property to be added to target nodes,
     and the functions used to determine whether it already exists and
@@ -27,15 +36,6 @@ class PropertyInsertion:
     property_name: str
     has_property: Callable[TagNode, str, str, bool]
     add_property: Callable[TagNode, str, str, TagNode]
-
-
-@dataclasses.dataclass
-class PropertyExtraction:
-    """ define how properties get extracted from BTS data source and processed
-    before inserting them into an AED target model.
-    """
-    extract_funcs: list[Callable[dict, dict]]
-    patch_funcs: list[Callable[str, dict, dict, dict]]
 
 
 @dataclasses.dataclass

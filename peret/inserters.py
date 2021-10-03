@@ -113,11 +113,14 @@ def _has_daterange(e: TagNode, pred: str, value: str) -> bool:
     >>> _has_daterange(e, 'end', '-1731')
     False
 
+    >>> _has_daterange(e, 'beginning', None)
+    True
+
     """
     attribute = DATERANGE_BOUNDS.get(pred)
     return e.css_select(
         f'category > catDesc > date[{attribute}="{value}"]'
-    ).size > 0
+    ).size > 0 or len(value or '') < 1
 
 
 def _add_daterange(e: TagNode, pred: str, value: str) -> TagNode:
@@ -128,7 +131,12 @@ def _add_daterange(e: TagNode, pred: str, value: str) -> TagNode:
     >>> str(_add_daterange(e, 'end', '-1730'))
     '<category><catDesc><date from="-1745" to="-1730"/></catDesc></category>'
 
+    >>> str(_add_daterange(e, 'beginning', None))
+    '<category><catDesc><date from="-1745" to="-1730"/></catDesc></category>'
+
     """
+    if len(value or '') < 1:
+        return e
     if not e.css_select("category > catDesc"):
         e.append_child(tag("catDesc"))
     if not e.css_select("category > catDesc > date"):

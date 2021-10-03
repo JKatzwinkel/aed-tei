@@ -10,6 +10,9 @@ def register_qualified_property(
     >>> register_qualified_property({}, 'k', 'v')
     {'k': ['v']}
 
+    >>> register_qualified_property({}, 'k', None)
+    {}
+
     """
     if qualifier and value:
         registry[qualifier] = registry.get(qualifier, []) + [value]

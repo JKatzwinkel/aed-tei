@@ -85,11 +85,15 @@ def extract_passport_values(node: dict, path: str) -> list:
     >>> extract_passport_values(p, '.a.b.c')
     [2, 3]
 
+    >>> b['children'].append({'type': 'd'})
+    >>> extract_passport_values(p, '.a.b.d')
+    []
+
     """
     res = []
     segments = path.split('.')
     if len(segments) == 1 and node.get('type') == segments[-1]:
-        return [node.get('value')]
+        return [val] if (val := node.get('value')) else []
     for child in node.get(segments[0], node).get('children', []):
         res += extract_passport_values(
             child, '.'.join(segments[1:])
@@ -104,7 +108,7 @@ def get_ths_entry_dates(bts_entry: dict) -> dict:
     >>> d2 = {'type': 'end', 'value': '-201'}
     >>> mg = {'type': 'main_group', 'children': [d1, d2]}
     >>> td = {'type': 'thesaurus_date', 'children': [mg]}
-    >>> entry = {'passport': {'children': [td]}}
+    >>> entry = {'passport': {'children': [td]}, 'type': 'date'}
     >>> get_ths_entry_dates(entry)
     {'dates': {'beginning': ['-250'], 'end': ['-201']}}
 
@@ -116,6 +120,7 @@ def get_ths_entry_dates(bts_entry: dict) -> dict:
                 f'.thesaurus_date.main_group.{key}'
             )
             for key in ['beginning', 'end']
+            if bts_entry.get('type') == 'date'
         }
     }
 

@@ -4,6 +4,7 @@ Usage:
     peret.py validate [ -f FILE ]
     peret.py add-translations [ -i FILE ] [ -f FILE ]
     peret.py add-relations [ -i FILE ] [ -f FILE ]
+    peret.py add-ths-dateranges [ -i FILE ] [ -f FILE ]
 
 Commands:
     format                  prettify XML file
@@ -14,6 +15,8 @@ Commands:
                             AED-TEI XML dictionary file
     add-relations           add relations from BTS couchdb dump zip file to
                             AED-TEI XML dictionary file
+    add-ths-dateranges      add dateranges from BTS couchdb dump zip file to
+                            AED-TEI XML thesaurus file
 
 Options:
     -f FILE --file FILE     path to local XML file
@@ -46,6 +49,8 @@ from peret.inserters import (
     _add_relation,
     _has_translation,
     _add_translation,
+    _has_daterange,
+    _add_daterange,
 )
 
 from .providers import (
@@ -73,13 +78,13 @@ def process_vocab(
     src: SourceDef,
     target: TargetDef,
     extraction: PropertyExtraction,
-    amendment: PropertyInsertion = None,
+    insertion: PropertyInsertion = None,
 ):
     """ process entries of AED TEI XML file according to configuration
     and save result to the same XML file.
     """
     print(
-        f'add {amendment.property_name} from {src.archive} to {target.xmlfile}'
+        f'add {insertion.property_name} from {src.archive} to {target.xmlfile}'
     )
     xml_ids = target.get_ids()
     print('initialize registry')
@@ -104,16 +109,16 @@ def process_vocab(
     for entry in target.get_elements():
         _id = _get_id(entry)
         for _type, values in wlist.get(_id, {}).get(
-            amendment.property_name, {}
+            insertion.property_name, {}
         ).items():
             for value in values:
-                if not amendment.has_property(entry, _type, value):
-                    amendment.add_property(entry, _type, value)
+                if not insertion.has_property(entry, _type, value):
+                    insertion.add_property(entry, _type, value)
                     _stats['elements'] += 1
                     _stats['entries'].add(_id)
     print(
         (
-            f'added {_stats["elements"]} {amendment.property_name} to '
+            f'added {_stats["elements"]} {insertion.property_name} to '
             f'{len(_stats["entries"])} entries.'
         )
     )
@@ -134,7 +139,7 @@ def add_lemma_relations(
             [bts.get_relations],
             [_verify_relations, _mirror_relations]
         ),
-        amendment=PropertyInsertion(
+        insertion=PropertyInsertion(
             'relations', _has_relation, _add_relation
         ),
     )
@@ -153,8 +158,27 @@ def add_lemma_translations(
         PropertyExtraction(
             [bts.get_translations], None
         ),
-        amendment=PropertyInsertion(
+        insertion=PropertyInsertion(
             'translations', _has_translation, _add_translation
+        ),
+    )
+
+
+def add_ths_dateranges(
+    inputfile: str = 'dump/vocabulary.zip',
+    xmlfile: str = 'files/thesaurus.xml'
+):
+    """ extract thesaurus entry dateranges from BTS couchdb dump ZIP file
+    and insert them into AED-TEI XML file.
+    """
+    process_vocab(
+        SourceDef(inputfile, 'aaew_ths'),
+        TargetDef(xmlfile, 'category'),
+        PropertyExtraction(
+            [bts.get_ths_entry_dates], None
+        ),
+        insertion=PropertyInsertion(
+            'dates', _has_daterange, _add_daterange,
         ),
     )
 
@@ -188,6 +212,8 @@ def main():
         add_lemma_translations(args['--input'], args['--file'])
     if args['add-relations']:
         add_lemma_relations(args['--input'], args['--file'])
+    if args['add-ths-dateranges']:
+        add_ths_dateranges(args['--input'], args['--file'])
     if args['validate']:
         validate_file(args['--file'])
 
