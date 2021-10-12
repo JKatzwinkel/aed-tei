@@ -74,21 +74,26 @@ def patch_vocab(vocab: dict, functions: List[Callable] = None) -> dict:
     return vocab
 
 
-def process_vocab(
-    src: SourceDef,
-    target: TargetDef,
-    extraction: PropertyExtraction,
-    insertion: PropertyInsertion = None,
-):
-    """ process entries of AED TEI XML file according to configuration
-    and save result to the same XML file.
+def populate_data_source(
+    src: SourceDef, target: TargetDef, extraction: PropertyExtraction
+) -> dict:
+    """ create and populate a data source entry registry by applying
+    extraction and patch functions to all entries in a BTS couchdb dump
+    data file that can be matched to an entry in the AED TEI target file.
+
+    >>> wlist = populate_data_source(
+    ...     SourceDef('test/dump/vocabulary.zip'),
+    ...     TargetDef('files/dictionary.xml'),
+    ...     PropertyExtraction(
+    ...         [bts.get_translations],
+    ...     )
+    ... )
+    >>> wlist['1']['translations']
+    {'de': ['Geier; Vogel (allg.)'], 'en': ['vulture; bird (gen.)']}
+
     """
-    print(
-        f'add {insertion.property_name} from {src.archive} to {target.xmlfile}'
-    )
     xml_ids = target.get_ids()
-    print('initialize registry')
-    wlist = {
+    return {
         _id: entry
         for _id, entry in patch_vocab(
             {
@@ -104,18 +109,24 @@ def process_vocab(
         ).items()
         if _id in xml_ids
     }
+
+
+def process_vocab(
+    src: SourceDef,
+    target: TargetDef,
+    extraction: PropertyExtraction,
+    insertion: PropertyInsertion = None,
+):
+    """ process entries of AED TEI XML file according to configuration
+    and save result to the same XML file.
+    """
+    print(
+        f'add {insertion.property_name} from {src.archive} to {target.xmlfile}'
+    )
+    print('initialize registry')
+    wlist = populate_data_source(src, target, extraction)
     print('process XML entries')
-    _stats = {'entries': set(), 'elements': 0}
-    for entry in target.get_elements():
-        _id = _get_id(entry)
-        for _type, values in wlist.get(_id, {}).get(
-            insertion.property_name, {}
-        ).items():
-            for value in values:
-                if not insertion.has_property(entry, _type, value):
-                    insertion.add_property(entry, _type, value)
-                    _stats['elements'] += 1
-                    _stats['entries'].add(_id)
+    _stats = target.update(wlist, insertion)
     print(
         (
             f'added {_stats["elements"]} {insertion.property_name} to '

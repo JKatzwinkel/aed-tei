@@ -24,7 +24,7 @@ class PropertyExtraction:
     before inserting them into an AED target model.
     """
     extract_funcs: list[Callable[dict, dict]]
-    patch_funcs: list[Callable[str, dict, dict, dict]]
+    patch_funcs: list[Callable[str, dict, dict, dict]] = None
 
 
 @dataclasses.dataclass
@@ -82,3 +82,21 @@ class TargetDef:
         """ produce all the elements of interest in the target XML document
         """
         yield from self._doc.css_select(self.element)
+
+    def update(self, entries: dict, insertion: PropertyInsertion) -> dict:
+        """ go through AED document entries and apply insertion function to
+        add property from BTS data source registry, if applicable.
+        return update statistics.
+        """
+        _stats = {'entries': set(), 'elements': 0}
+        for entry in self.get_elements():
+            _id = _get_id(entry)
+            for _type, values in entries.get(_id, {}).get(
+                insertion.property_name, {}
+            ).items():
+                for value in values:
+                    if not insertion.has_property(entry, _type, value):
+                        insertion.add_property(entry, _type, value)
+                        _stats['elements'] += 1
+                        _stats['entries'].add(_id)
+        return _stats
