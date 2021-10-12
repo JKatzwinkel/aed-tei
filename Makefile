@@ -31,5 +31,8 @@ add-translations: vocabulary ## add translations from BTS dump to AED XML dictio
 add-relations: vocabulary ## add relations from BTS dump to AED XML dictionary
 	pipenv run peret add-relations -i dump/vocabulary.zip
 
-test: vocabulary aed-dictionary ## run tests
+add-ths-dateranges: vocabulary ## add date ranges from BTS dump to AED XML thesaurus
+	pipenv run peret add-ths-dateranges -i dump/vocabulary.zip -f files/thesaurus.xml
+
+test: ## run tests
 	pipenv run pytest --doctest-modules peret
