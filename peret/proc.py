@@ -3,11 +3,29 @@
 from __future__ import annotations
 import dataclasses
 from pathlib import Path
-from typing import Callable, Iterable
+from typing import Callable, Iterable, List
 
 from delb import Document, TagNode
 
+from .providers import bts
 from .inserters import _get_id
+
+
+def patch_vocab(vocab: dict, functions: List[Callable] = None) -> dict:
+    """ iterate through all key value pairs in vocab registry and apply one or more
+    functions to each.
+
+    >>> from .pre import _verify_relations, _mirror_relations
+    >>> wlist = {'1': {'relations': {'root': ['3']}},
+    ... '2': {'relations': {'rootOf': ['1']}}}
+    >>> patch_vocab(wlist, [_verify_relations, _mirror_relations])['1']
+    {'relations': {'root': ['2']}}
+
+    """
+    for _id, entry in vocab.items():
+        for func in functions:
+            vocab[_id] = func(_id, entry, vocab)
+    return vocab
 
 
 @dataclasses.dataclass
@@ -16,6 +34,41 @@ class SourceDef:
     """
     archive: str = 'dump/vocabulary.zip'
     vocab: str = 'aaew_wlist'
+
+    def extract_and_match(
+        self, target: TargetDef, extraction: PropertyExtraction
+    ) -> dict:
+        """ create and populate a data source entry registry by applying
+        extraction and patch functions to all entries in a BTS couchdb dump
+        data file that can be matched to an entry in the AED TEI target file.
+
+        >>> wlist = SourceDef('test/dump/vocabulary.zip').extract_and_match(
+        ...     TargetDef('files/dictionary.xml'),
+        ...     PropertyExtraction(
+        ...         [bts.get_translations],
+        ...     )
+        ... )
+        >>> wlist['1']['translations']
+        {'de': ['Geier; Vogel (allg.)'], 'en': ['vulture; bird (gen.)']}
+
+        """
+        xml_ids = target.get_ids()
+        return {
+            _id: entry
+            for _id, entry in patch_vocab(
+                {
+                    _id: entry
+                    for _id, entry in bts.init_vocab(
+                        filename=self.archive,
+                        vocab=self.vocab,
+                        functions=extraction.extract_funcs or []
+                    ).items()
+                    if _id in xml_ids
+                },
+                functions=extraction.patch_funcs or []
+            ).items()
+            if _id in xml_ids
+        }
 
 
 @dataclasses.dataclass

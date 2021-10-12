@@ -25,8 +25,6 @@ Options:
                             [default: dump/vocabulary.zip]
 
 """
-from typing import List, Callable
-
 from pathlib import Path
 
 import docopt
@@ -44,7 +42,6 @@ from peret.pre import (
     _mirror_relations,
 )
 from peret.inserters import (
-    _get_id,
     _has_relation,
     _add_relation,
     _has_translation,
@@ -56,59 +53,6 @@ from peret.inserters import (
 from .providers import (
     bts,
 )
-
-
-def patch_vocab(vocab: dict, functions: List[Callable] = None) -> dict:
-    """ iterate through all key value pairs in vocab registry and apply one or more
-    functions to each.
-
-    >>> wlist = {'1': {'relations': {'root': ['3']}},
-    ... '2': {'relations': {'rootOf': ['1']}}}
-    >>> patch_vocab(wlist, [_verify_relations, _mirror_relations])['1']
-    {'relations': {'root': ['2']}}
-
-    """
-    for _id, entry in vocab.items():
-        for func in functions:
-            vocab[_id] = func(_id, entry, vocab)
-    return vocab
-
-
-def populate_data_source(
-    src: SourceDef, target: TargetDef, extraction: PropertyExtraction
-) -> dict:
-    """ create and populate a data source entry registry by applying
-    extraction and patch functions to all entries in a BTS couchdb dump
-    data file that can be matched to an entry in the AED TEI target file.
-
-    >>> wlist = populate_data_source(
-    ...     SourceDef('test/dump/vocabulary.zip'),
-    ...     TargetDef('files/dictionary.xml'),
-    ...     PropertyExtraction(
-    ...         [bts.get_translations],
-    ...     )
-    ... )
-    >>> wlist['1']['translations']
-    {'de': ['Geier; Vogel (allg.)'], 'en': ['vulture; bird (gen.)']}
-
-    """
-    xml_ids = target.get_ids()
-    return {
-        _id: entry
-        for _id, entry in patch_vocab(
-            {
-                _id: entry
-                for _id, entry in bts.init_vocab(
-                    filename=src.archive,
-                    vocab=src.vocab,
-                    functions=extraction.extract_funcs or []
-                ).items()
-                if _id in xml_ids
-            },
-            functions=extraction.patch_funcs or []
-        ).items()
-        if _id in xml_ids
-    }
 
 
 def process_vocab(
@@ -124,7 +68,7 @@ def process_vocab(
         f'add {insertion.property_name} from {src.archive} to {target.xmlfile}'
     )
     print('initialize registry')
-    wlist = populate_data_source(src, target, extraction)
+    wlist = src.extract_and_match(target, extraction)
     print('process XML entries')
     _stats = target.update(wlist, insertion)
     print(
@@ -197,11 +141,11 @@ def add_ths_dateranges(
 def prettify_file(filename: str):
     """ format XML file.
     """
-    fp = Path(filename)
-    if not fp.exists():
+    file = Path(filename)
+    if not file.exists():
         print(f'XML file {filename} could not be found.')
         return
-    Document(fp).save(fp, pretty=True)
+    Document(file).save(file, pretty=True)
 
 
 def validate_file(filename: str):
