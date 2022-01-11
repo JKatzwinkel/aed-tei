@@ -34,5 +34,8 @@ add-relations: vocabulary ## add relations from BTS dump to AED XML dictionary
 add-ths-dateranges: vocabulary ## add date ranges from BTS dump to AED XML thesaurus
 	pipenv run peret add-ths-dateranges -i dump/vocabulary.zip -f files/thesaurus.xml
 
+validate-ths-dateranges: ## find thesaurus entries with invalid date ranges
+	pipenv run shemu ths-dates > invalid-ths-dates.csv
+
 test: ## run tests
 	pipenv run pytest --doctest-modules peret

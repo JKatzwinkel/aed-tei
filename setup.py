@@ -15,7 +15,8 @@ setup(
     },
     entry_points={
         'console_scripts': (
-            'peret = peret:main'
+            'peret = peret:main',
+            'shemu = peret.validate:main',
         )
     },
 )

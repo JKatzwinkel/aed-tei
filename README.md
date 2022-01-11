@@ -30,7 +30,7 @@ by Simon D. Schweitzer, 2019
 ## transformation code
 to be published (soon)
 
-### AED data utility tool `peret`
+### AED data enrichment utilities
 
 requires:
 
@@ -48,4 +48,5 @@ requires:
 
 ```bash
   pipenv run peret --help
+  pipenv run shemu --help
 ```
