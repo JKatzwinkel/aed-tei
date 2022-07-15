@@ -11,8 +11,8 @@ from peret.inserters import _strip_id, XML_NS
 
 def get_dates(filename: str = 'files/thesaurus.xml') -> QueryResults:
     """
-    >>> len(get_dates())
-    391
+    >>> len(get_dates('test/files/thesaurus.xml'))
+    65
     """
     return Document(
         Path(filename)
@@ -23,7 +23,7 @@ def get_dates(filename: str = 'files/thesaurus.xml') -> QueryResults:
 
 def daterange(node: TagNode) -> tuple:
     """
-    >>> daterange(get_dates()[1])
+    >>> daterange(get_dates('test/files/thesaurus.xml')[1])
     (0, 0)
     """
     return tuple(
@@ -48,8 +48,8 @@ def get_date_dict(node: TagNode) -> dict:
     - contains: cumulative date range of the entries descendants
 
     >>> # pylint: disable=line-too-long
-    >>> get_date_dict(get_dates()[-4])
-    {'id': 'SJGD7JW3PZAHHB2FHJKWVTSIBM', 'name': '4. Viertel 8. Jhdt. n.Chr.', 'daterange': [776, 800], 'contains': [776, 800]}
+    >>> get_date_dict(get_dates('test/files/thesaurus.xml')[-4])
+    {'id': 'IT24BFWQQ5FL7NSNEPBYN3JUQA', 'name': 'Wadj / Ita', 'daterange': [-2968, -2956], 'contains': [-2968, -2956]}
     """
     return {
         'id': _strip_id(node.attributes[f'{{{XML_NS}}}id']),
@@ -61,8 +61,8 @@ def get_date_dict(node: TagNode) -> dict:
 
 def child_range(node: TagNode) -> tuple:
     """
-    >>> child_range(get_dates()[1])
-    (-900, -1)
+    >>> child_range(get_dates('test/files/thesaurus.xml')[1])
+    (-600, -1)
 
     """
     children = node.xpath('./category')
@@ -85,8 +85,13 @@ def child_range(node: TagNode) -> tuple:
 
 def is_valid(node: TagNode) -> bool:
     """
-    >>> is_valid(get_dates()[1])
+    >>> dates = get_dates('test/files/thesaurus.xml')
+
+    >>> is_valid(dates[1])
     False
+
+    >>> is_valid(dates[2])
+    True
 
     """
     own_daterange = daterange(node)
@@ -98,7 +103,7 @@ def is_valid(node: TagNode) -> bool:
 
 def find_invalid(filename: str = 'files/thesaurus.xml') -> QueryResults:
     """
-    >>> get_date_dict(find_invalid()[2])['name']
+    >>> get_date_dict(find_invalid('test/files/thesaurus.xml')[2])['name']
     '(Epochen und Dynastien)'
 
     """

@@ -1,0 +1,228 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0" version="5.0">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>Taxonomies for the AED - Version 0.1</title>
+        <respStmt>
+          <resp>compiler</resp>
+          <name>Peter Dils</name>
+          <name>Angela Böhme</name>
+          <name>Altägyptisches Wörterbuch</name>
+          <name>Anja Weber</name>
+        </respStmt>
+      </titleStmt>
+      <publicationStmt>
+        <publisher>someone</publisher>
+        <availability xml:lang="en" status="free">
+          <licence target="http://creativecommons.org/licenses/by-sa/4.0/">Metadata and texts are released as Creative Commons, Attribution-ShareAlike 4.0 (CC BY-SA 4.0)</licence>
+        </availability>
+        <date>heute</date>
+      </publicationStmt>
+      <sourceDesc>
+        <p>Based on <ref target="urn:nbn:de:kobv:b4-opus4-29190">Teilauszug der Datenbank des Vorhabens "Strukturen und Transformationen des Wortschatzes der ägyptischen Sprache" vom Januar 2018</ref></p>
+      </sourceDesc>
+    </fileDesc>
+    <encodingDesc>
+      <classDecl>
+        <taxonomy>
+          <category xml:id="tlaMXWX4WG43ZHI7D4RLTGK3IBGXY">
+            <catDesc>9 = Datierungen</catDesc>
+            <category xml:id="tlaD3R5CH5NZBDA7IZMCKKJPWYZKU">
+              <catDesc>(Jahrhunderte v.Chr.)<date from="0" to="0"/></catDesc>
+              <category xml:id="tla2ZIZTYBKYNFNVFTFBA32CAAY7A">
+                <catDesc>1. Jhdt. v.Chr.<date from="-100" to="-1"/></catDesc>
+                <category xml:id="tla3V5NOJIC3VBIZBA7QCD6OFSAQY">
+                  <catDesc>4. Viertel 1. Jhdt. v.Chr.<date from="-25" to="-1"/></catDesc>
+                </category>
+                <category xml:id="tla7LG7A3WDXNFCVDQICH6CXVIJXM">
+                  <catDesc>1. Hälfte 1. Jhdt. v.Chr.<date from="-100" to="-51"/></catDesc>
+                </category>
+                <category xml:id="tlaEIO2LWBQURGJVC7LQZE5UHGMPU">
+                  <catDesc>2. Viertel 1. Jhdt. v.Chr.<date from="-75" to="-51"/></catDesc>
+                </category>
+                <category xml:id="tlaOSHKAITIJJAOVE4XNMQOVUA6JA">
+                  <catDesc>2. Hälfte 1. Jhdt. v.Chr.<date from="-50" to="-1"/></catDesc>
+                </category>
+                <category xml:id="tlaUQRNNAQXKBBLFEREMXSODORMFY">
+                  <catDesc>1. Viertel 1. Jhdt. v.Chr.<date from="-100" to="-76"/></catDesc>
+                </category>
+                <category xml:id="tlaZLKNXXGL7VA7VEECINB7NS65WI">
+                  <catDesc>3. Viertel 1. Jhdt. v.Chr.<date from="-50" to="-26"/></catDesc>
+                </category>
+              </category>
+              <category xml:id="tlaJ5JVKLZBXJH5VGTKXCTPBJ2KZE">
+                <catDesc>4. Jhdt. v.Chr.<date from="-400" to="-301"/></catDesc>
+                <category xml:id="tla2VUPFL5N5FCC7FF4ECKTUY35Q4">
+                  <catDesc>2. Hälfte 4. Jhdt. v.Chr.<date from="-350" to="-301"/></catDesc>
+                </category>
+                <category xml:id="tla33LKEBW63FFSNCVMGOSMDBGFNQ">
+                  <catDesc>1. Hälfte 4. Jhdt. v.Chr.<date from="-400" to="-351"/></catDesc>
+                </category>
+                <category xml:id="tlaCSL4LTLEQBBSXGZ353PCVGCFZQ">
+                  <catDesc>1. Viertel 4. Jhdt. v.Chr.<date from="-400" to="-376"/></catDesc>
+                </category>
+                <category xml:id="tlaIPYKL4XDHJBFJE7D7AZ47HXVIM">
+                  <catDesc>3. Viertel 4. Jhdt. v.Chr.<date from="-350" to="-326"/></catDesc>
+                </category>
+                <category xml:id="tlaPYJNB3V355DMZERYYWMFHZ5NNI">
+                  <catDesc>4. Viertel 4. Jhdt. v.Chr.<date from="-325" to="-301"/></catDesc>
+                </category>
+                <category xml:id="tlaSX4FBQBUQFCSHBJFDSCPRLRRY4">
+                  <catDesc>2. Viertel 4. Jhdt. v.Chr.<date from="-375" to="-351"/></catDesc>
+                </category>
+              </category>
+              <category xml:id="tlaL34UY7MQCRB2JCBPNZKLGP2ZL4">
+                <catDesc>2. Jhdt. v.Chr.<date from="-200" to="-101"/></catDesc>
+                <category xml:id="tlaBZNFBS76HVCPTJSYIUV22TSXBQ">
+                  <catDesc>2. Hälfte 2. Jhdt. v.Chr.<date from="-150" to="-101"/></catDesc>
+                </category>
+                <category xml:id="tlaDZUK4KHXJZBK5DIDGR6JDOMV4A">
+                  <catDesc>2. Viertel 2. Jhdt. v.Chr.<date from="-175" to="-151"/></catDesc>
+                </category>
+                <category xml:id="tlaHXGOS6R4BFGJRAFU6ZWTFAIYOA">
+                  <catDesc>1. Hälfte 2. Jhdt. v.Chr.<date from="-200" to="-151"/></catDesc>
+                </category>
+                <category xml:id="tlaPTSGMJ72MVDM3LGZS63DM4ENQI">
+                  <catDesc>1. Viertel 2. Jhdt. v.Chr.<date from="-200" to="-176"/></catDesc>
+                </category>
+                <category xml:id="tlaWFXACEBXJZA77IUNL2T2G4WJWA">
+                  <catDesc>4. Viertel 2. Jhdt. v.Chr.<date from="-125" to="-101"/></catDesc>
+                </category>
+                <category xml:id="tlaXQOCZAYRS5B4FA7XUIXRLZXOCA">
+                  <catDesc>3. Viertel 2. Jhdt. v.Chr.<date from="-150" to="-126"/></catDesc>
+                </category>
+              </category>
+              <category xml:id="tlaNVFQR5PSCZEFPELBXY57W2VQPM">
+                <catDesc>3. Jhdt. v.Chr.<date from="-300" to="-201"/></catDesc>
+                <category xml:id="tla2EPYVX63FFBRJBCOEKC2E42K6Y">
+                  <catDesc>2. Viertel 3. Jhdt. v.Chr.<date from="-275" to="-251"/></catDesc>
+                </category>
+                <category xml:id="tla2RNQRYRR75HBHJQXKCIINNWCIE">
+                  <catDesc>2. Hälfte 3. Jhdt. v.Chr.<date from="-250" to="-201"/></catDesc>
+                </category>
+                <category xml:id="tla7FG3AE5TKBHCBCQIUHZIQS5SPE">
+                  <catDesc>3. Viertel 3. Jhdt. v.Chr.<date from="-250" to="-226"/></catDesc>
+                </category>
+                <category xml:id="tlaCXCXYSLLUFHMPGQ7ROYMAHLCAA">
+                  <catDesc>1. Hälfte 3. Jhdt. v.Chr.<date from="-300" to="-251"/></catDesc>
+                </category>
+                <category xml:id="tlaRDSBFVI3QJG7XNZOXVDLV3LU6I">
+                  <catDesc>1. Viertel 3. Jhdt. v.Chr.<date from="-300" to="-276"/></catDesc>
+                </category>
+                <category xml:id="tlaRUEGPD2BQBAIRAF35NA3L4VJHY">
+                  <catDesc>4. Viertel 3. Jhdt. v.Chr.<date from="-225" to="-201"/></catDesc>
+                </category>
+              </category>
+              <category xml:id="tlaSUWAELMXDVA5VF7G6BGY5FP24Q">
+                <catDesc>5. Jhdt. v.Chr.<date from="-500" to="-401"/></catDesc>
+                <category xml:id="tla2SVJUWTG65CGBPSRR2JVGCFZQI">
+                  <catDesc>3. Viertel 5. Jhdt. v.Chr.<date from="-450" to="-426"/></catDesc>
+                </category>
+                <category xml:id="tla37AKJCT3O5EXHKZVR4OERWJUMM">
+                  <catDesc>2. Viertel 5. Jhdt. v.Chr.<date from="-475" to="-451"/></catDesc>
+                </category>
+                <category xml:id="tla3RSAUA2SMZGCDEMLGVH47P6IOM">
+                  <catDesc>1. Hälfte 5. Jhdt. v.Chr.<date from="-500" to="-451"/></catDesc>
+                </category>
+                <category xml:id="tlaGGPOQYXYZBDUZNTFBXUVFYGDEM">
+                  <catDesc>2. Hälfte 5. Jhdt. v.Chr.<date from="-450" to="-401"/></catDesc>
+                </category>
+                <category xml:id="tlaM5RNBQZBHJDSJLRFTESD5PXUUM">
+                  <catDesc>4. Viertel 5. Jhdt. v.Chr.<date from="-425" to="-401"/></catDesc>
+                </category>
+                <category xml:id="tlaSWTOWPX765HQBK4FBHAFFBF4XE">
+                  <catDesc>1. Viertel 5. Jhdt. v.Chr.<date from="-500" to="-476"/></catDesc>
+                </category>
+              </category>
+              <category xml:id="tlaSYVSDPY4UFC7VFGH34ZDTEPMMM">
+                <catDesc>6. Jhdt. v.Chr.<date from="-600" to="-501"/></catDesc>
+                <category xml:id="tla5RWQE6I76ZDJ7C6RZZHDZ5NZOA">
+                  <catDesc>2. Hälfte 6. Jhdt. v.Chr.<date from="-550" to="-501"/></catDesc>
+                </category>
+                <category xml:id="tla742V5NN54JCLRMXZSWDVTG4YK4">
+                  <catDesc>4. Viertel 6. Jhdt. v.Chr.<date from="-525" to="-501"/></catDesc>
+                </category>
+                <category xml:id="tla7WVJGW33WFHVZI2UBOIDWIKIPI">
+                  <catDesc>1. Hälfte 6. Jhdt. v.Chr.<date from="-600" to="-551"/></catDesc>
+                </category>
+                <category xml:id="tlaONBKOHQ33BA2ZC2SC2HQHOG3UY">
+                  <catDesc>2. Viertel 6. Jhdt. v.Chr.<date from="-575" to="-551"/></catDesc>
+                </category>
+                <category xml:id="tlaRDVGZ5PV4BAGRG2ZBOUB4SBJHI">
+                  <catDesc>3. Viertel 6. Jhdt. v.Chr.<date from="-550" to="-526"/></catDesc>
+                </category>
+                <category xml:id="tlaWHI6OSNIHJEDFI4VOSPL3NGNQM">
+                  <catDesc>1. Viertel 6. Jhdt. v.Chr.<date from="-600" to="-576"/></catDesc>
+                </category>
+              </category>
+            </category>
+            <category xml:id="tlaDUVGWT7GSRCKDM5LFTGU6MZ3GY">
+              <catDesc>(Epochen und Dynastien)<date from="0" to="0"/></catDesc>
+              <category xml:id="tla3GGZCLNRQVF6PAEQA6LCFBNE6M">
+                <catDesc>Zweite Zwischenzeit<date from="-1793" to="-1551"/></catDesc>
+                <category xml:id="tlaE4VXX5LISZC2XIR6AYPM3Y3TQI">
+                  <catDesc>15. / 16. / 17. Dynastie<date from="-1649" to="-1551"/></catDesc>
+                </category>
+                <category xml:id="tlaGKB34UGJLZA6ZPUYTDRQ7UNPH4">
+                  <catDesc>13. / 14. Dynastie<date from="-1793" to="-1650"/></catDesc>
+                  <category xml:id="tlaQXLWLXSIOBEBRBINKZ7WPX6C3U">
+                    <catDesc>Sebekhotep IV.<date from="-1745" to="-1730"/></catDesc>
+                  </category>
+                </category>
+              </category>
+              <category xml:id="tla7FUWX6PWFJDAXEWQDOAA4FYXFU">
+                <catDesc>prädynastische Zeit<date from="-5500" to="-3151"/></catDesc>
+                <category xml:id="tla6YAAR2WRI5F6BLP6YMW3G67P6Q">
+                  <catDesc>Neolithikum vor der Badari-Kultur<date from="0" to="0"/></catDesc>
+                </category>
+                <category xml:id="tlaFMNBFXWGA5C2TEXFRDXOGXBEPE">
+                  <catDesc>Badari-Kultur<date from="0" to="0"/></catDesc>
+                </category>
+                <category xml:id="tlaIPXSCTKV4REDHIXWTZWDXVXJWY">
+                  <catDesc>Naqada III<date from="0" to="0"/></catDesc>
+                </category>
+                <category xml:id="tlaP5F2WOP6YZGBHK5KCSCP2UXJHM">
+                  <catDesc>Naqada I<date from="0" to="0"/></catDesc>
+                </category>
+                <category xml:id="tlaWLIRCHQ3DRF4ZOTIREDVCPKC5A">
+                  <catDesc>Naqada II<date from="0" to="0"/></catDesc>
+                </category>
+              </category>
+              <category xml:id="tlaBILVGTX4DVEERA2TQ2DFPYYTK4">
+                <catDesc>Thinitenzeit<date from="-3150" to="-2724"/></catDesc>
+                <category xml:id="tlaRHWO4WZITFG7LC64PRWKXGSBLE">
+                  <catDesc>1. Dyn.<date from="-3048" to="-2870"/></catDesc>
+                  <category xml:id="tla6OQR45RINVBEXKRXU67UUYG5WI">
+                    <catDesc>Semerchet / Semempses<date from="-2902" to="-2895"/></catDesc>
+                  </category>
+                  <category xml:id="tla7W7ATEIEBBB7JBXHCOIEEDK3X4">
+                    <catDesc>( ) / Itj<date from="-3016" to="-3016"/></catDesc>
+                  </category>
+                  <category xml:id="tlaC36PPQYVH5G4LLVMYYF4KAQ7V4">
+                    <catDesc>Den / Usaphais<date from="-2955" to="-2909"/></catDesc>
+                  </category>
+                  <category xml:id="tlaDXQSYPUVZ5ENLH22UECZNJZFSY">
+                    <catDesc>Aha / Menes<date from="-3048" to="-3017"/></catDesc>
+                  </category>
+                  <category xml:id="tlaIT24BFWQQ5FL7NSNEPBYN3JUQA">
+                    <catDesc>Wadj / Ita<date from="-2968" to="-2956"/></catDesc>
+                  </category>
+                  <category xml:id="tlaO23PARFR5BEZDPKFYTPTWNISIM">
+                    <catDesc>Adj-ib / Miebis<date from="-2908" to="-2903"/></catDesc>
+                  </category>
+                  <category xml:id="tlaWJGLV3QK3BEPZGHRP6D5EYZMOQ">
+                    <catDesc>Qa-a / Bieneches<date from="-2894" to="-2870"/></catDesc>
+                  </category>
+                  <category xml:id="tlaWOKINRAGTVBY5ER4WSNTGPTAIU">
+                    <catDesc>Djer / Athotis<date from="-3015" to="-2969"/></catDesc>
+                  </category>
+								</category>
+							</category>
+						</category>
+ 					</category>
+				</taxonomy>
+      </classDecl>
+		</encodingDesc>
+	</teiHeader>
+</TEI>
