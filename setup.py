@@ -19,4 +19,5 @@ setup(
             'shemu = peret.validate:main',
         )
     },
+    packages=['peret'],
 )
