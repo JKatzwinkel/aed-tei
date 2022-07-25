@@ -30,7 +30,10 @@ jobs:
         if: steps.cache-pipenv.outputs.cache-hit != 'true'
         run: pipenv install
 
-      - name: validate dictionary
+      - name: validate thesaurus
         run: pipenv run peret validate -f files/thesaurus.xml
+
+      - name: validate thesaurus test fixture
+        run: pipenv run peret validate -f test/files/thesaurus.xml
 
 ...

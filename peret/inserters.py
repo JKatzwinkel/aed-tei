@@ -134,16 +134,24 @@ def _add_daterange(e: TagNode, pred: str, value: str) -> TagNode:
     >>> str(_add_daterange(e, 'beginning', None))
     '<category><catDesc><date from="-1745" to="-1730"/></catDesc></category>'
 
+    >>> str(_add_daterange(e, 'beginning', '01'))
+    '<category><catDesc><date from="0001" to="-1730"/></catDesc></category>'
+
     """
     if len(value or '') < 1:
         return e
+    int_value = int(value)
     if not e.css_select("category > catDesc"):
         e.append_child(tag("catDesc"))
     if not e.css_select("category > catDesc > date"):
         e.css_select("category > catDesc").first.append_child(tag("date"))
     e.css_select("category > catDesc > date").first.attributes[
         DATERANGE_BOUNDS.get(pred)
-    ] = value
+    ] = (
+        f'{int_value:04}'
+        if int_value >= 0
+        else f'-{abs(int_value):04}'
+    )
     return e
 
 
