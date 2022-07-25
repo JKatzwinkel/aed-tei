@@ -3,7 +3,7 @@ from distutils.core import setup
 setup(
     name='peret',
     install_requires=[
-        'delb[https-loader]',
+        'delb[https-loader]==0.2',
         'xmlschema',
         'requests',
         'docopt',
