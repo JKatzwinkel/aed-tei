@@ -130,7 +130,8 @@ def add_ths_dateranges(
         SourceDef(inputfile, 'aaew_ths'),
         TargetDef(xmlfile, 'category'),
         PropertyExtraction(
-            [bts.get_ths_entry_dates], None
+            [bts.get_ths_entry_dates],
+            [bts.fill_in_missing_dateranges]
         ),
         insertion=PropertyInsertion(
             'dates', _has_daterange, _add_daterange,

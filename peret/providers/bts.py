@@ -125,6 +125,37 @@ def get_ths_entry_dates(bts_entry: dict) -> dict:
     }
 
 
+def fill_in_missing_dateranges(entry_id: str, entry: dict, ths: dict) -> dict:
+    '''
+
+    >>> fill_in_missing_dateranges(
+    ...     'FMNBFXWGA5C2TEXFRDXOGXBEPE',
+    ...     {'dates': {'beginning': ['-250'], 'end': ['-201']}}, {})
+    {'dates': {'beginning': ['-5000'], 'end': ['-3900']}}
+
+    '''
+    missing_dateranges = {
+        'MXWX4WG43ZHI7D4RLTGK3IBGXY': ['-5500',   '900'],  # 9 = Datierungen
+        'FKLXKTC5RJFSZCBDU5HWK6KHGU': ['-5500',   '900'],  # (unbekannt)
+        'GTIHALKZWJFTNCLZ3ITXK7HBXA': ['-5500',   '900'],  # (unbestimmt)
+        'DUVGWT7GSRCKDM5LFTGU6MZ3GY': ['-5500',   '641'],  # (Epochen und Dynastien)
+        '6YAAR2WRI5F6BLP6YMW3G67P6Q': ['-5500', '-5000'],  # Neolithikum vor der Badari-Kultur
+        'FMNBFXWGA5C2TEXFRDXOGXBEPE': ['-5000', '-3900'],  # Badari-Kultur
+        'P5F2WOP6YZGBHK5KCSCP2UXJHM': ['-3900', '-3650'],  # Naqada I
+        'WLIRCHQ3DRF4ZOTIREDVCPKC5A': ['-3650', '-3300'],  # Naqada II
+        'IPXSCTKV4REDHIXWTZWDXVXJWY': ['-3300', '-3151'],  # Naqada III
+        'MM4QYACJOJCCLJWBD6VAX2FLKE': ['-2135', '-1794'],  # Mittleres Reich
+        'JS32JKX2CNG25GZ3B6MGYMDU4I': ['-1070',  '-656'],  # Dritte Zwischenzeit
+        'HYYNMJRFTVFIHB7JUA6M2QW3LQ': [ '-332',   '-30'],  # Makedonen, Ptolemäer
+        'D3R5CH5NZBDA7IZMCKKJPWYZKU': [ '-900',    '-1'],  # (Jahrhunderte v.Chr.)
+        'FHZEINDCEJAOTHIVC35NYGMC2Q': [    '1',   '900'],  # (Jahrhunderte n.Chr.)
+    }
+    if amendment := missing_dateranges.get(entry_id):
+        entry['dates'] |= {'beginning': [amendment[0]], 'end': [amendment[1]]}
+    return entry
+
+
+
 def apply_functions(
     entry: dict, functions: List[Callable] = [get_translations]
 ) -> dict:

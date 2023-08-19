@@ -21,6 +21,10 @@ def patch_vocab(vocab: dict, functions: List[Callable] = None) -> dict:
     >>> patch_vocab(wlist, [_verify_relations, _mirror_relations])['1']
     {'relations': {'root': ['2']}}
 
+    >>> ths = {'D3R5CH5NZBDA7IZMCKKJPWYZKU': {'dates': {'beginning': ['0'], 'end': ['0']}}}
+    >>> patch_vocab(ths, [bts.fill_in_missing_dateranges])['D3R5CH5NZBDA7IZMCKKJPWYZKU']
+    {'dates': {'beginning': ['-900'], 'end': ['-1']}}
+
     """
     for _id, entry in vocab.items():
         for func in functions:
