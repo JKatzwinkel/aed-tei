@@ -21,10 +21,29 @@ def get_dates(filename: str = 'files/thesaurus.xml') -> QueryResults:
     )
 
 
+def select_date(xml_id: str, filename: str = 'files/thesaurus.xml') -> TagNode:
+    '''
+
+    >>> isinstance(select_date('tlaDUVGWT7GSRCKDM5LFTGU6MZ3GY', 'test/files/thesaurus.xml'), TagNode)
+    True
+
+    '''
+    directory = {
+        node['{http://www.w3.org/XML/1998/namespace}id']: node
+        for node in get_dates(filename)
+    }
+    return directory.get(xml_id)
+
+
 def daterange(node: TagNode) -> tuple:
     """
-    >>> daterange(get_dates('test/files/thesaurus.xml')[1])
+
+    >>> daterange(select_date('tlaD3R5CH5NZBDA7IZMCKKJPWYZKU', 'test/files/thesaurus.xml'))
     (0, 0)
+
+    >>> daterange(select_date('tla7FUWX6PWFJDAXEWQDOAA4FYXFU', 'test/files/thesaurus.xml'))
+    (-5500, -3151)
+
     """
     return tuple(
         map(
@@ -62,21 +81,22 @@ def get_date_dict(node: TagNode) -> dict:
 def child_range(node: TagNode) -> tuple:
     """
     >>> child_range(get_dates('test/files/thesaurus.xml')[1])
-    (-600, -1)
+    (-600, 0)
+
+    >>> child_range(select_date('tlaDUVGWT7GSRCKDM5LFTGU6MZ3GY', 'test/files/thesaurus.xml'))
+    (-5500, 0)
 
     """
     children = node.xpath('./category')
     if children.size > 0:
         ranges = list(map(
             child_range, children
-        ))
+        )) + [daterange(node)]
         start, end = [
             agg(
-                map(
-                    agg, ranges
-                )
+                daterange[i] for daterange in ranges
             )
-            for agg in (min, max)
+            for i, agg in enumerate((min, max))
         ]
     else:
         start, end = daterange(node)
