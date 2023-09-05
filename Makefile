@@ -39,3 +39,6 @@ validate-ths-dateranges: ## find thesaurus entries with invalid date ranges
 
 test: ## run tests
 	pipenv run pytest --doctest-modules peret
+
+lint: ## run linter
+	pipenv run python -mflake8 --ignore=E501
