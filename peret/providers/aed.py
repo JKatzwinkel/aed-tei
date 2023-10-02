@@ -107,7 +107,7 @@ def load_lemmata(
                 zip_file.namelist()
             )
         ):
-            if i+1 > num > 0:
+            if i + 1 > num > 0:
                 break
             with zip_file.open(lemmafile) as file:
                 html = str(file.read())

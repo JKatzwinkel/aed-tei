@@ -7,7 +7,7 @@ from .providers import register_qualified_property
 
 INVERSE = dict(
     reduce(
-        lambda l, e: l + [e, e[::-1]],
+        lambda mappings, e: mappings + [e, e[::-1]],
         [
             ("partOf", "contains"),
             ("predecessor", "successor"),
